@@ -1,4 +1,3 @@
-[market_prioritization_tool (5).html](https://github.com/user-attachments/files/27130358/market_prioritization_tool.5.html)
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -241,7 +240,7 @@ table.trkt tbody tr:hover td{background:#faf9f7}
   </div>
   <div class="card tw">
     <table class="trkt">
-      <thead><tr><th>Date</th><th>NPI</th><th>Name</th><th>Type</th><th>Active licenses</th><th>Deferred</th><th>Applied for</th><th>NP gap met?</th><th>D1 Readiness</th><th>Submit by (Verifiable)</th><th>Status</th><th>Comments</th></tr></thead>
+      <thead><tr><th>Date</th><th>NPI</th><th>Name</th><th>Type</th><th>Active licenses</th><th>Deferred</th><th>Applied for</th><th>NP gap met?</th><th>D1 Readiness</th><th>Submit by (Verifiable)</th><th>Status</th><th>Comments</th><th></th></tr></thead>
       <tbody id="trk-body"></tbody>
     </table>
   </div>
@@ -1194,6 +1193,28 @@ function showVerifiableModal(name, npi, body, licTeamEmail) {
 }
 
 
+function delRec(id){
+  var btn=document.querySelector('button.del-btn[data-id="'+id+'"]');
+  if(!btn) return;
+  // Two-click confirm: first click shows "Sure?", second click deletes
+  if(btn.dataset.confirming==='1'){
+    recs=recs.filter(function(r){return r.id!==id;});
+    saveRecs(); renderTrk();
+    toast('Record deleted','ok');
+    return;
+  }
+  btn.dataset.confirming='1';
+  btn.textContent='Sure?';
+  btn.style.cssText='background:var(--red);color:#fff;border:none;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;cursor:pointer;';
+  // Auto-reset after 3s if not clicked again
+  setTimeout(function(){
+    if(btn&&btn.isConnected&&btn.dataset.confirming==='1'){
+      btn.dataset.confirming='0';
+      btn.innerHTML='&#x1F5D1;';
+      btn.style.cssText='background:none;border:none;cursor:pointer;color:var(--red);font-size:15px;padding:2px 6px;border-radius:4px;';
+    }
+  },3000);
+}
 function saveRecs(){try{localStorage.setItem('mpt6',JSON.stringify(recs));}catch(e){} updBadge();}
 function updBadge(){var n=recs.filter(function(r){return r.status==='Pending';}).length;var b=document.getElementById('pbadge');b.textContent=n;b.classList.toggle('on',n>0);}
 function renderStats(){
@@ -1205,10 +1226,13 @@ function renderTrk(){
   var ft=document.getElementById('fType').value,fs=document.getElementById('fStat').value,fq=document.getElementById('fQ').value.toLowerCase();
   var rows=recs.filter(function(r){return(!ft||r.type===ft)&&(!fs||r.status===fs)&&(!fq||(r.name||'').toLowerCase().includes(fq)||r.npi.includes(fq));});
   var tb=document.getElementById('trk-body');
-  if(!rows.length){tb.innerHTML='<tr class="empty"><td colspan="12">No records match your filters.</td></tr>';return;}
-  tb.innerHTML=rows.map(function(r){return '<tr><td style="font-size:12px;color:var(--mut);white-space:nowrap">'+r.date+'</td><td style="font-family:monospace;font-size:11px">'+r.npi+'</td><td style="font-weight:600;white-space:nowrap">'+r.name+'</td><td><span class="bdg '+(r.type==='Psychiatrist'?'bb':r.type==='NP'?'bt':'bg')+'">'+r.type+'</span></td><td style="font-size:11px;color:var(--mut)">'+r.activeLicenses+'</td><td style="font-size:11px">'+r.toolRecommendations+'</td><td style="font-size:11px;font-weight:500">'+r.appliedFor+'</td><td><span class="bdg '+(r.gapMet?'bg':'ba')+'">'+(r.gapMet?'Yes':'No')+' &middot; '+r.npCoverage+'/'+r.npTarget+'</span></td><td><select class="ssel" data-id="'+r.id+'"><option'+(r.status==='Pending'?' selected':'')+'>Pending</option><option'+(r.status==='Approved'?' selected':'')+'>Approved</option><option'+(r.status==='Changes requested'?' selected':'')+'>Changes requested</option></select></td><td><input class="ci" type="text" value="'+(r.comments||'')+'" placeholder="Comments..." data-id="'+r.id+'" data-field="comments"/></td></tr>';}).join('');
+  if(!rows.length){tb.innerHTML='<tr class="empty"><td colspan="13">No records match your filters.</td></tr>';return;}
+  tb.innerHTML=rows.map(function(r){return '<tr><td style="font-size:12px;color:var(--mut);white-space:nowrap">'+r.date+'</td><td style="font-family:monospace;font-size:11px">'+r.npi+'</td><td style="font-weight:600;white-space:nowrap">'+r.name+'</td><td><span class="bdg '+(r.type==='Psychiatrist'?'bb':r.type==='NP'?'bt':'bg')+'">'+r.type+'</span></td><td style="font-size:11px;color:var(--mut)">'+r.activeLicenses+'</td><td style="font-size:11px">'+r.toolRecommendations+'</td><td style="font-size:11px;font-weight:500">'+r.appliedFor+'</td><td><span class="bdg '+(r.gapMet?'bg':'ba')+'">'+(r.gapMet?'Yes':'No')+' &middot; '+r.npCoverage+'/'+r.npTarget+'</span></td><td><select class="ssel" data-id="'+r.id+'"><option'+(r.status==='Pending'?' selected':'')+'>Pending</option><option'+(r.status==='Approved'?' selected':'')+'>Approved</option><option'+(r.status==='Changes requested'?' selected':'')+'>Changes requested</option></select></td><td><input class="ci" type="text" value="'+(r.comments||'')+'" placeholder="Comments..." data-id="'+r.id+'" data-field="comments"/></td>'
+      +'<td style="text-align:center"><button class="del-btn" data-id="'+r.id+'" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:15px;padding:2px 6px;border-radius:4px" title="Delete record">&#x1F5D1;</button></td>'
+      +'</tr>';}).join('');
   tb.querySelectorAll('select.ssel').forEach(function(sel){sel.addEventListener('change',function(){updField(parseInt(this.dataset.id),'status',this.value);renderStats();updBadge();});});
   tb.querySelectorAll('input.ci').forEach(function(inp){inp.addEventListener('change',function(){updField(parseInt(this.dataset.id),this.dataset.field,this.value);});});
+  tb.querySelectorAll('button.del-btn').forEach(function(btn){btn.addEventListener('click',function(){delRec(parseInt(this.dataset.id));});});
 }
 function updField(id,field,val){var r=recs.find(function(x){return x.id===id;});if(r){r[field]=val;saveRecs();}}
 function doExport(){
