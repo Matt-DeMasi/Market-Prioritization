@@ -1,0 +1,1481 @@
+[market_prioritization_tool (9).html](https://github.com/user-attachments/files/27134746/market_prioritization_tool.9.html)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Market Prioritization Tool — Talkiatry</title>
+<style>
+:root{
+  --bg:#f7f6f3;--surf:#fff;--bdr:#e4e1da;--bdr2:#ccc9c0;
+  --txt:#1a1918;--mut:#68665e;--fnt:#9a9890;
+  --teal-bg:#e0f5ee;--teal:#0f6e56;--teal-b:#5dcaa5;
+  --blue-bg:#e5f0fb;--blue:#185fa5;--blue-b:#85b7eb;
+  --amb-bg:#faeeda;--amb:#854f0b;--amb-b:#ef9f27;
+  --red-bg:#fcebeb;--red:#a32d2d;--red-b:#f09595;
+  --grn-bg:#eaf3de;--grn:#3b6d11;--grn-b:#97c459;
+  --r:8px;--rl:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.5;min-height:100vh}
+.shell{display:flex;min-height:100vh}
+.sb{width:210px;background:var(--surf);border-right:1px solid var(--bdr);position:fixed;top:0;left:0;bottom:0;z-index:10;display:flex;flex-direction:column}
+.sb-logo{padding:16px 18px 14px;border-bottom:1px solid var(--bdr)}
+.sb-logo h1{font-size:13px;font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.sb-nav{flex:1;padding:8px 0}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:13px;font-weight:500;color:var(--mut);cursor:pointer;border-left:2px solid transparent;user-select:none}
+.ni:hover{background:var(--bg);color:var(--txt)}
+.ni.on{color:var(--txt);border-left-color:var(--txt);background:var(--bg)}
+.ni svg{width:15px;height:15px;opacity:.65;flex-shrink:0}
+.ni-badge{margin-left:auto;background:var(--red-bg);color:var(--red);font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:none}
+.ni-badge.on{display:inline}
+.sb-foot{padding:14px 18px;border-top:1px solid var(--bdr);margin-top:auto}
+.apill{display:flex;align-items:flex-start;gap:8px;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:var(--r);padding:8px 10px}
+.adot{width:7px;height:7px;border-radius:50%;background:var(--grn);flex-shrink:0;margin-top:3px}
+.albl{font-size:11px;font-weight:600;color:var(--grn)}
+.aeml{font-size:10px;color:var(--grn);word-break:break-all}
+.main{margin-left:210px;padding:28px 32px;max-width:1060px}
+.pg{display:none}.pg.on{display:block}
+.ph{margin-bottom:20px}
+.ph h2{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.ph p{color:var(--mut);font-size:13px;margin-top:3px}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.cs{padding:16px 22px;border-bottom:1px solid var(--bdr)}
+.cs:last-child{border-bottom:none}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg .full{grid-column:1/-1}
+.g{display:flex;flex-direction:column;gap:5px}
+.fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+input[type=text],input[type=date],input[type=password],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--r);font-size:13px;font-family:inherit;background:var(--surf);color:var(--txt);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--txt);box-shadow:0 0 0 3px rgba(26,25,24,.06)}
+textarea{resize:vertical;min-height:68px}
+/* Multiselect */
+.msw{position:relative}
+.mst{width:100%;padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--r);font-size:13px;background:var(--surf);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;user-select:none}
+.mst:hover{border-color:var(--txt)}
+.mst-lbl{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--mut)}
+.mst-lbl.v{color:var(--txt)}
+.mst-arr{font-size:9px;color:var(--mut)}
+.msd{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surf);border:1px solid var(--bdr2);border-radius:var(--r);box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:300;max-height:240px;overflow-y:auto;display:none}
+.msd.on{display:block}
+.msd-srch{padding:8px 10px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--surf)}
+.msd-srch input{padding:5px 8px;font-size:12px;border:1px solid var(--bdr);background:var(--bg);border-radius:6px}
+.msd-acts{padding:5px 10px;display:flex;gap:10px;border-bottom:1px solid var(--bdr);background:var(--bg);position:sticky;top:0}
+.msd-srch + .msd-acts{position:sticky;top:38px}
+.mact{font-size:11px;color:var(--blue);cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.mact:hover{text-decoration:underline}
+.mopt{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+.mopt:hover{background:var(--bg)}
+.mopt input[type=checkbox]{width:13px;height:13px;accent-color:var(--txt);cursor:pointer;flex-shrink:0}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;font-size:13px;font-weight:500;cursor:pointer;border-radius:var(--r);border:1px solid var(--bdr2);background:var(--surf);color:var(--txt);font-family:inherit;white-space:nowrap}
+.btn:hover{background:var(--bg)}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.35;cursor:default;pointer-events:none}
+.btn-p{background:var(--txt);color:#fff;border-color:var(--txt)}.btn-p:hover{opacity:.88;background:var(--txt)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.brow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:16px}
+/* Badges */
+.bdg{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap}
+.bt{background:var(--teal-bg);color:var(--teal)}
+.bb{background:var(--blue-bg);color:var(--blue)}
+.ba{background:var(--amb-bg);color:var(--amb)}
+.br{background:var(--red-bg);color:var(--red)}
+.bg{background:var(--grn-bg);color:var(--grn)}
+.bgr{background:var(--bg);color:var(--mut);border:1px solid var(--bdr)}
+/* Alerts */
+.al{padding:10px 14px;border-radius:var(--r);font-size:13px;line-height:1.5}
+.al-ok{background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn-b)}
+.al-warn{background:var(--amb-bg);color:var(--amb);border:1px solid var(--amb-b)}
+.al-err{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+/* Snap */
+.snap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.sc{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px}
+.sc-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin-bottom:5px}
+.sc-val{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.sc-sub{font-size:12px;color:var(--mut);margin-top:3px}
+.ok{color:var(--grn)}.warn{color:var(--amb)}.bad{color:var(--red)}
+.pb-wrap{background:var(--bdr);border-radius:4px;height:7px;overflow:hidden;margin-top:6px}
+.pb{height:100%;border-radius:4px;background:var(--teal)}
+.pb-dim{background:var(--bdr2);}
+/* Tables */
+.lt{width:100%;border-collapse:collapse;font-size:13px}
+.lt th{text-align:left;padding:6px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);border-bottom:1px solid var(--bdr);background:var(--bg)}
+.lt td{padding:8px 10px;border-bottom:1px solid var(--bdr)}
+.lt tr:last-child td{border-bottom:none}
+/* Rec chips */
+.rcg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-top:10px}
+.rchip{padding:11px 13px;border-radius:var(--r);border:1px solid var(--bdr);position:relative;cursor:pointer;user-select:none}
+.rchip:hover{box-shadow:0 2px 8px rgba(0,0,0,.09)}
+.rchip.p1{border-color:var(--teal-b);background:var(--teal-bg)}
+.rchip.p2{border-color:var(--blue-b);background:var(--blue-bg)}
+.rchip.p3{border-color:var(--amb-b);background:var(--amb-bg)}
+.rchip.sel{box-shadow:0 0 0 2.5px var(--txt)}
+.rchip-hd{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:4px}
+.rchip-st{font-size:16px;font-weight:700}
+.rchip-meta{font-size:11px;color:var(--mut);line-height:1.4;margin-top:2px}
+.rchip-vis{font-size:12px;font-weight:600;margin-top:5px}
+.rchip-cb{position:absolute;top:9px;right:9px;width:15px;height:15px;accent-color:var(--txt);cursor:pointer}
+/* Sat */
+.sat{padding:8px 12px;border-radius:var(--r);font-size:12px;margin-top:4px}
+.sat-ok{background:var(--grn-bg);color:var(--grn)}
+.sat-warn{background:var(--amb-bg);color:var(--amb)}
+/* Checklist */
+.ckl{list-style:none;display:flex;flex-direction:column;gap:6px}
+.ckl li{display:flex;align-items:center;gap:8px;font-size:13px}
+.ck{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;font-weight:700}
+.ck.pass{background:var(--grn-bg);color:var(--grn)}
+.ck.fail{background:var(--red-bg);color:var(--red)}
+.ck.na{background:var(--bg);color:var(--mut);border:1px solid var(--bdr)}
+/* Tracker */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.stc .sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin-bottom:4px}
+.stc .sv{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.fbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.fbar select,.fbar input{width:auto;font-size:13px}
+.tw{overflow-x:auto;border-radius:var(--rl)}
+table.trkt{width:100%;border-collapse:collapse;min-width:860px}
+table.trkt thead th{padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);background:var(--bg);border-bottom:1px solid var(--bdr);text-align:left;white-space:nowrap}
+table.trkt tbody td{padding:9px 12px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+table.trkt tbody tr:last-child td{border-bottom:none}
+table.trkt tbody tr:hover td{background:#faf9f7}
+.ci{border:1px solid transparent;border-radius:5px;padding:4px 6px;font-size:12px;font-family:inherit;background:transparent;color:var(--txt);width:100%;min-width:90px}
+.ci:hover{border-color:var(--bdr);background:var(--bg)}
+.ci:focus{border-color:var(--txt);background:var(--surf);outline:none}
+.ssel{border:1px solid var(--bdr);border-radius:5px;padding:3px 6px;font-size:11px;font-family:inherit;background:var(--surf);cursor:pointer}
+.empty td{text-align:center;padding:36px;color:var(--mut)}
+.pav{width:40px;height:40px;border-radius:50%;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin-bottom:8px}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--txt);color:#fff;padding:9px 15px;border-radius:var(--r);font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:all .22s;z-index:600;max-width:300px;pointer-events:none}
+.toast.on{opacity:1;transform:translateY(0)}
+.toast.ok{background:var(--grn)}.toast.er{background:var(--red)}
+@media(max-width:768px){.sb{display:none}.main{margin-left:0;padding:18px}.fg{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.snap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="shell">
+<nav class="sb">
+  <div class="sb-logo"><h1>Market Prioritization Tool</h1></div>
+  <div class="sb-nav">
+    <div class="ni on" id="nav-rec" onclick="navTo('rec')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6M8 5v6"/></svg>
+      New recommendation
+    </div>
+    <div class="ni" id="nav-trk" onclick="navTo('trk')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>
+      Tracker <span class="ni-badge" id="pbadge">0</span>
+    </div>
+    <div class="ni" id="nav-set" onclick="navTo('set')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 2v1M8 13v1M2 8h1M13 8h1M3.5 3.5l.7.7M11.8 11.8l.7.7M11.8 4.2l-.7.7M4.2 11.8l-.7.7"/></svg>
+      Settings
+    </div>
+  </div>
+  <div class="sb-foot">
+    <div class="apill"><div class="adot"></div><div><div class="albl">Final approver</div><div class="aeml" id="appr-lbl">Matt.DeMasi@talkiatry.com</div></div></div>
+  </div>
+</nav>
+<main class="main">
+
+<!-- RECOMMEND -->
+<div class="pg on" id="pg-rec">
+  <div class="ph"><h2>New recommendation</h2><p>Enter provider details to calculate NP coverage gaps and generate prioritized license recommendations.</p></div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="cs">
+      <div class="sl">Provider details</div>
+      <div class="fg">
+        <div class="g"><label class="fl">Provider name</label><input type="text" id="pName" placeholder="Full name"/></div>
+        <div class="g"><label class="fl">NPI number</label><input type="text" id="pNPI" placeholder="10-digit NPI" maxlength="10"/></div>
+        <div class="g">
+          <label class="fl">Provider type</label>
+          <select id="pType"><option value="">Select type...</option><option>Psychiatrist</option><option>NP</option><option>Therapist</option></select>
+        </div>
+        <div class="g">
+          <label class="fl">FTE ratio</label>
+          <select id="pFTE"><option value="1.0">1.0 FTE</option><option value="0.8">0.8 FTE</option><option value="0.6">0.6 FTE</option><option value="0.5">0.5 FTE</option></select>
+        </div>
+        <div class="g"><label class="fl">Start date</label><input type="date" id="pStart"/></div>
+        <div class="g">
+          <label class="fl">Timezones covered</label>
+          <div class="msw" id="msw-tz">
+            <div class="mst" id="mst-tz"><span class="mst-lbl" id="mst-tz-lbl">Select timezones...</span><span class="mst-arr">▼</span></div>
+            <div class="msd" id="msd-tz">
+              <div class="msd-acts"><button class="mact" id="tz-all">All</button><button class="mact" id="tz-clr">Clear</button></div>
+              <div id="msd-tz-opts"></div>
+            </div>
+          </div>
+        </div>
+        <div class="g full">
+          <label class="fl">Active licenses — states</label>
+          <div class="msw" id="msw-lic">
+            <div class="mst" id="mst-lic"><span class="mst-lbl" id="mst-lic-lbl">Select states...</span><span class="mst-arr">▼</span></div>
+            <div class="msd" id="msd-lic">
+              <div class="msd-srch"><input type="text" id="lic-srch" placeholder="Search states..."/></div>
+              <div class="msd-acts"><button class="mact" id="lic-all">All</button><button class="mact" id="lic-clr">Clear</button></div>
+              <div id="msd-lic-opts"></div>
+            </div>
+          </div>
+        </div>
+        <div class="g full"><label class="fl">Additional context (optional)</label><textarea id="pCtx" placeholder="Geographic constraints, insurance priorities, panel notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="cs" id="sat-area" style="display:none"><div id="sat-msg"></div></div>
+    <div class="cs" style="border-bottom:none">
+      <div class="brow" style="margin-top:0">
+        <button class="btn btn-p" id="recBtn" onclick="runRec()">Get recommendations →</button>
+        <button class="btn" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+  <div id="result-area"></div>
+</div>
+
+<!-- TRACKER -->
+<div class="pg" id="pg-trk">
+  <div class="ph"><h2>License tracker</h2><p>All submitted recommendations. You have final sign-off on each record.</p></div>
+  <div class="stats" id="stats-row"></div>
+  <div class="fbar">
+    <select id="fType" onchange="renderTrk()"><option value="">All types</option><option>Psychiatrist</option><option>NP</option><option>Therapist</option></select>
+    <select id="fStat" onchange="renderTrk()"><option value="">All statuses</option><option>Pending</option><option>Approved</option><option>Changes requested</option></select>
+    <input type="text" id="fQ" placeholder="Search name or NPI..." oninput="renderTrk()" style="min-width:180px"/>
+    <button class="btn btn-sm" onclick="doExport()" style="margin-left:auto">Export CSV</button>
+  </div>
+  <div class="card tw">
+    <table class="trkt">
+      <thead><tr><th>Date</th><th>NPI</th><th>Name</th><th>Type</th><th>Active licenses</th><th>Deferred</th><th>Applied for</th><th>NP gap met?</th><th>D1 Readiness</th><th>Submit by (Verifiable)</th><th>Status</th><th>Comments</th><th></th></tr></thead>
+      <tbody id="trk-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="pg" id="pg-set">
+  <div class="ph"><h2>Settings</h2><p>Approver and notification configuration.</p></div>
+  <div class="card cs" style="max-width:480px;display:flex;flex-direction:column;gap:16px;border-bottom:none">
+    <div class="g"><label class="fl">Approver email (receives notifications)</label><input type="text" id="s-appr" placeholder="approver@talkiatry.com"/></div>
+    <div class="g">
+      <label class="fl">Microsoft Graph token (for email delivery)</label>
+      <input type="password" id="s-mst" placeholder="Paste bearer token..."/>
+      <span style="font-size:11px;color:var(--mut);margin-top:2px">Optional — enables automatic Outlook email on each submission.</span>
+    </div>
+    <button class="btn btn-p" onclick="saveSet()" style="align-self:flex-start">Save settings</button>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+var STATES=["AL","AK","AZ","AR","CA","CO","CT","DC","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
+var SNAMES={AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DC:"Washington DC",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"};
+var TZS=["ET","CT","MT","MST","PT","AK","HI"];
+var TZ_LBL={ET:"Eastern (ET)",CT:"Central (CT)",MT:"Mountain (MT)",MST:"Mountain Standard (MST)",PT:"Pacific (PT)",AK:"Alaska (AK)",HI:"Hawaii (HI)"};
+var NP_BASE={Psychiatrist:80,NP:80,Therapist:40};
+
+// NLC (Nurse Licensure Compact) states for RN/PMHNP
+// Source: State Licensing & CS Tracker (SOT) — RN/PMHNP Compact column
+// If a provider holds an active RN license in ANY compact state,
+// they do NOT need a separate RN application in other compact states.
+var NLC_COMPACT=['AL','AR','AZ','CO','CT','DE','FL','GA','IA','ID','IN','KS','KY','LA','MD','ME','MO','MS','MT','NC','ND','NE','NH','NJ','NM','OH','OK','PA','RI','SC','SD','TN','TX','UT','VA','VT','WA','WI','WV','WY'];
+// Pending/introduced — compact not yet fully operational; treat as requiring separate RN for now
+var NLC_PENDING=['AK','DC','HI','IL','MA','MI','MN','NV','NY','OR'];
+// CA = None (never compact)
+
+function isNlcCompact(state){
+  return NLC_COMPACT.indexOf(state)!==-1;
+}
+function rnCoveredByCompact(state, activeRnStates){
+  // Returns true if the provider already holds an RN in any compact state
+  // AND the target state is also compact — meaning no separate RN needed
+  if(!isNlcCompact(state)) return false;
+  var hasCompactRn=activeRnStates.some(function(s){return isNlcCompact(s);});
+  return hasCompactRn;
+}
+
+// CSR (Controlled Substance Registration) required states by provider type
+// Source: analytics.staging.stg_verifiable_licensing_manager__license_application / Ramp Readiness SQL
+var CSR_MD_DO=['AL','CT','DE','DC','HI','ID','IL','IN','IA','LA','MA','MD','MI','MO','NV','NJ','NM','OK','RI','SC','SD','UT','WY'];
+var CSR_NP=['AL','AZ','AR','CO','CT','DE','FL','GA','ID','IN','IA','KS','KY','LA','ME','MD','MA','MS','MO','MT','NE','NH','NJ','NM','NC','ND','OH','OK','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+// State DEA required (state-level DEA registration separate from federal DEA)
+var STATE_DEA_REQUIRED=['GA','IN','LA','MS','OK','RI','CA'];
+
+function needsCSR(state, type) {
+  if(type==='NP') return CSR_NP.indexOf(state)!==-1;
+  if(type==='Psychiatrist') return CSR_MD_DO.indexOf(state)!==-1;
+  return false; // therapists don't need CSR
+}
+function needsDEA(state, type) {
+  if(type==='Therapist') return false; // therapists never need DEA
+  return STATE_DEA_REQUIRED.indexOf(state)!==-1;
+}
+function getLicenseActions(state, type) {
+  var actions=['State license application'];
+  if(needsCSR(state,type)) actions.push('CSR application');
+  if(needsDEA(state,type)) actions.push('State DEA application');
+  return actions;
+}
+var PSYCH={GA:{a:"Highly Undersupplied",r:1,fv:35,nv:30,csr:"Not Required",dea:"Required",ta:53,tz:"ET"},IN:{a:"Highly Undersupplied",r:1,fv:23,nv:12,csr:"Required",dea:"Not Required",ta:0,tz:"CT"},LA:{a:"Undersupplied",r:1,fv:63,nv:63,csr:"Required",dea:"Not Required",ta:40,tz:"CT"},MS:{a:"Undersupplied",r:1,fv:46,nv:45,csr:"Required",dea:"Not Required",ta:130,tz:"CT"},OK:{a:"Undersupplied",r:1,fv:41,nv:41,csr:"Required",dea:"Not Required",ta:102,tz:"CT"},RI:{a:"Highly Undersupplied",r:1,fv:40,nv:17,csr:"Required",dea:"Not Required",ta:45,tz:"ET"},TN:{a:"Undersupplied",r:1,fv:30,nv:13,csr:"Not Required",dea:"Not Required",ta:60,tz:"CT"},DC:{a:"Highly Undersupplied",r:1,fv:38,nv:20,csr:"Not Required",dea:"Not Required",ta:30,tz:"ET"},MD:{a:"Highly Undersupplied",r:1,fv:32,nv:32,csr:"Not Required",dea:"Not Required",ta:28,tz:"ET"},OR:{a:"Undersupplied",r:1,fv:30,nv:30,csr:"Not Required",dea:"Not Required",ta:25,tz:"PT"},AL:{a:"Undersupplied",r:2,fv:54,nv:27,csr:"Required",dea:"Not Required",ta:31,tz:"CT"},AR:{a:"Undersupplied",r:2,fv:60,nv:4,csr:"Not Required",dea:"Not Required",ta:22,tz:"CT"},CA:{a:"Undersupplied",r:2,fv:26,nv:18,csr:"Not Required",dea:"Not Required",ta:45,tz:"PT"},CT:{a:"Somewhat Balanced",r:2,fv:34,nv:34,csr:"Required",dea:"Not Required",ta:36,tz:"ET"},IL:{a:"Balanced",r:2,fv:40,nv:40,csr:"Required",dea:"Not Required",ta:90,tz:"CT"},KY:{a:"Undersupplied",r:2,fv:44,nv:44,csr:"Not Required",dea:"Not Required",ta:38,tz:"ET"},ME:{a:"Undersupplied",r:2,fv:23,nv:12,csr:"Not Required",dea:"Not Required",ta:39,tz:"ET"},MI:{a:"Somewhat Balanced",r:2,fv:34,nv:11,csr:"Required",dea:"Not Required",ta:47,tz:"ET"},MN:{a:"Somewhat Balanced",r:2,fv:40,nv:40,csr:"Not Required",dea:"Not Required",ta:41,tz:"CT"},MO:{a:"Undersupplied",r:2,fv:26,nv:10,csr:"Required",dea:"Not Required",ta:36,tz:"CT"},NC:{a:"Somewhat Balanced",r:2,fv:32,nv:32,csr:"Not Required",dea:"Not Required",ta:38,tz:"ET"},NJ:{a:"Undersupplied",r:2,fv:32,nv:32,csr:"Required",dea:"Not Required",ta:0,tz:"ET"},NM:{a:"Somewhat Balanced",r:2,fv:42,nv:34,csr:"Required",dea:"Not Required",ta:28,tz:"MT"},OH:{a:"Undersupplied",r:2,fv:43,nv:43,csr:"Not Required",dea:"Not Required",ta:56,tz:"ET"},PA:{a:"Undersupplied",r:2,fv:55,nv:55,csr:"Not Required",dea:"Not Required",ta:71,tz:"ET"},SC:{a:"Undersupplied",r:2,fv:30,nv:12,csr:"Required",dea:"Not Required",ta:120,tz:"ET"},UT:{a:"Somewhat Balanced",r:2,fv:29,nv:5,csr:"Required",dea:"Not Required",ta:26,tz:"MT"},VA:{a:"Undersupplied",r:2,fv:29,nv:8,csr:"Required",dea:"Not Required",ta:56,tz:"ET"},VT:{a:"Somewhat Balanced",r:2,fv:18,nv:4,csr:"Not Required",dea:"Not Required",ta:0,tz:"ET"},WI:{a:"Somewhat Balanced",r:2,fv:31,nv:20,csr:"Not Required",dea:"Not Required",ta:21,tz:"CT"},CO:{a:"Undersupplied",r:2,fv:27,nv:10,csr:"Not Required",dea:"Not Required",ta:20,tz:"MT"},AZ:{a:"Undersupplied",r:2,fv:30,nv:20,csr:"Not Required",dea:"Not Required",ta:15,tz:"MT"},ID:{a:"Somewhat Balanced",r:2,fv:24,nv:14,csr:"Required",dea:"Not Required",ta:0,tz:"MT"},KS:{a:"Undersupplied",r:2,fv:28,nv:15,csr:"Not Required",dea:"Not Required",ta:35,tz:"CT"},WA:{a:"Undersupplied",r:2,fv:35,nv:35,csr:"Not Required",dea:"Not Required",ta:30,tz:"PT"},NY:{a:"Balanced",r:3,fv:25,nv:25,csr:"Not Required",dea:"Not Required",ta:40,tz:"ET"},TX:{a:"Balanced",r:3,fv:22,nv:22,csr:"Not Required",dea:"Not Required",ta:50,tz:"CT"},FL:{a:"Undersupplied",r:3,fv:20,nv:20,csr:"Not Required",dea:"Not Required",ta:60,tz:"ET"},MA:{a:"Undersupplied",r:3,fv:28,nv:15,csr:"Not Required",dea:"Not Required",ta:45,tz:"ET"}};
+var THERAPY={MO:{a:"Undersupplied",r:1,fv:16,ta:86,tz:"CT"},CT:{a:"Undersupplied",r:2,fv:11,ta:null,tz:"ET"},TN:{a:"Undersupplied",r:2,fv:9,ta:null,tz:"CT"},NY:{a:"Undersupplied",r:2,fv:12,ta:40,tz:"ET"},FL:{a:"Undersupplied",r:2,fv:10,ta:60,tz:"ET"},GA:{a:"Undersupplied",r:2,fv:9,ta:45,tz:"ET"},NC:{a:"Undersupplied",r:2,fv:11,ta:38,tz:"ET"},SC:{a:"Undersupplied",r:2,fv:9,ta:29,tz:"ET"},TX:{a:"Undersupplied",r:2,fv:11,ta:50,tz:"CT"},NJ:{a:"Undersupplied",r:2,fv:10,ta:35,tz:"ET"},OH:{a:"Undersupplied",r:2,fv:11,ta:40,tz:"ET"},MA:{a:"Undersupplied",r:2,fv:13,ta:45,tz:"ET"},WA:{a:"Undersupplied",r:2,fv:10,ta:30,tz:"PT"},MD:{a:"Undersupplied",r:2,fv:11,ta:28,tz:"ET"},CO:{a:"Undersupplied",r:2,fv:11,ta:20,tz:"MT"},PA:{a:"Undersupplied",r:3,fv:9,ta:69,tz:"ET"},VA:{a:"Balanced",r:3,fv:9,ta:null,tz:"ET"},IN:{a:"Balanced",r:3,fv:11,ta:43,tz:"ET"},MI:{a:"Balanced",r:3,fv:9,ta:47,tz:"ET"},IL:{a:"Balanced",r:3,fv:10,ta:90,tz:"CT"}};
+
+var recs=[]; try{recs=JSON.parse(localStorage.getItem('mpt6')||'[]');}catch(e){}
+var msSel={tz:[],lic:[]};
+var curRes=null;
+var APPR=localStorage.getItem('mpt6_appr')||'Matt.DeMasi@talkiatry.com';
+var MS_TOK=sessionStorage.getItem('mpt6_mst')||'';
+
+// Boot — using DOMContentLoaded so script at bottom of body is fine
+document.addEventListener('DOMContentLoaded', function() {
+  buildMs('tz');
+  buildMs('lic');
+  document.getElementById('appr-lbl').textContent=APPR;
+  document.getElementById('s-appr').value=APPR;
+  if(MS_TOK) document.getElementById('s-mst').value=MS_TOK;
+  var lt=localStorage.getItem('mpt6_licteam');
+  if(lt) document.getElementById('s-licteam').value=lt;
+  document.getElementById('pStart').addEventListener('change', checkSat);
+  updBadge(); renderStats(); renderTrk();
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.msw')) closeAllMs();
+  });
+});
+
+function navTo(id){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
+  document.getElementById('pg-'+id).classList.add('on');
+  document.getElementById('nav-'+id).classList.add('on');
+  if(id==='trk'){renderStats();renderTrk();}
+}
+
+function saveSet(){
+  APPR=document.getElementById('s-appr').value.trim();
+  MS_TOK=document.getElementById('s-mst').value.trim();
+  var lt=document.getElementById('s-licteam').value.trim();
+  localStorage.setItem('mpt6_appr',APPR);
+  if(MS_TOK) sessionStorage.setItem('mpt6_mst',MS_TOK);
+  if(lt) localStorage.setItem('mpt6_licteam',lt);
+  document.getElementById('appr-lbl').textContent=APPR;
+  toast('Settings saved','ok');
+}
+
+// Multiselect — all wiring done in JS, no onclick in HTML
+function buildMs(key){
+  var items = key==='tz' ? TZS : STATES;
+  var labels = key==='tz' ? TZ_LBL : SNAMES;
+  var optsEl = document.getElementById('msd-'+key+'-opts');
+  var html='';
+  items.forEach(function(v){ html+='<label class="mopt"><input type="checkbox" value="'+v+'"/> '+(labels[v]||v)+'</label>'; });
+  optsEl.innerHTML=html;
+  optsEl.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change', function(){msChange(key);});
+  });
+  document.getElementById('mst-'+key).addEventListener('click',function(e){toggleMs(key,e);});
+  document.getElementById('msd-'+key).addEventListener('click',function(e){e.stopPropagation();});
+  document.getElementById(key+'-all').addEventListener('click',function(e){e.stopPropagation();msAll(key);});
+  document.getElementById(key+'-clr').addEventListener('click',function(e){e.stopPropagation();msClear(key);});
+  var srch=document.getElementById(key+'-srch');
+  if(srch) srch.addEventListener('input',function(){msFilter(key,this.value);});
+}
+
+function toggleMs(key,e){
+  if(e) e.stopPropagation();
+  var dd=document.getElementById('msd-'+key);
+  var open=dd.classList.contains('on');
+  closeAllMs();
+  if(!open) dd.classList.add('on');
+}
+function closeAllMs(){ document.querySelectorAll('.msd').forEach(function(d){d.classList.remove('on');}); }
+function msChange(key){
+  msSel[key]=Array.from(document.querySelectorAll('#msd-'+key+'-opts input:checked')).map(function(c){return c.value;});
+  var lbl=document.getElementById('mst-'+key+'-lbl');
+  var s=msSel[key];
+  if(!s.length){lbl.textContent=key==='tz'?'Select timezones...':'Select states...';lbl.classList.remove('v');}
+  else if(s.length<=4){lbl.textContent=s.join(', ');lbl.classList.add('v');}
+  else{lbl.textContent=s.slice(0,3).join(', ')+' +'+(s.length-3)+' more';lbl.classList.add('v');}
+  if(key==='lic') checkSat();
+}
+function msAll(key){ document.querySelectorAll('#msd-'+key+'-opts input').forEach(function(c){c.checked=true;}); msChange(key); }
+function msClear(key){ document.querySelectorAll('#msd-'+key+'-opts input').forEach(function(c){c.checked=false;}); msChange(key); }
+function msFilter(key,q){ document.querySelectorAll('#msd-'+key+'-opts .mopt').forEach(function(o){o.style.display=o.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';}); }
+function msSetVals(key,vals){ document.querySelectorAll('#msd-'+key+'-opts input').forEach(function(c){c.checked=vals.indexOf(c.value)!==-1;}); msChange(key); }
+
+function getNpTarget(){
+  var t=document.getElementById('pType').value;
+  var f=parseFloat(document.getElementById('pFTE').value)||1.0;
+  return Math.round((NP_BASE[t]||80)*f);
+}
+
+function checkSat(){
+  var start=document.getElementById('pStart').value;
+  var area=document.getElementById('sat-area');
+  if(!start){area.style.display='none';return;}
+  var same=recs.filter(function(r){return r.startDate===start&&r.status!=='Changes requested';});
+  if(!same.length){area.style.display='none';return;}
+  var sm={};
+  same.forEach(function(r){(r.appliedFor||'').split(',').map(function(s){return s.trim();}).filter(Boolean).forEach(function(s){sm[s]=(sm[s]||0)+1;});});
+  var overlaps=msSel.lic.filter(function(s){return sm[s];});
+  area.style.display='block';
+  document.getElementById('sat-msg').innerHTML=overlaps.length
+    ?'<div class="sat sat-warn"><strong>&#9888; Saturation risk:</strong> '+same.length+' provider(s) starting '+start+' overlap in: '+overlaps.join(', ')+'. Prioritize other states.</div>'
+    :'<div class="sat sat-ok"><strong>&#10003; No conflicts:</strong> '+same.length+' other provider(s) share this start date with no state overlap.</div>';
+}
+
+
+// ── Day 1 Readiness timeline helpers ─────────────────────────────────────────
+// TAT clock starts when Verifiable profile is created (submission date)
+// Day 1 Readiness hard gate: license must be complete ≥14 days before start date
+// Second license: must be complete within 30 days after start date
+// "Complete market" = state license + CSR (if req) + State DEA (if req) all done
+
+function addDays(dateStr, days) {
+  if(!dateStr) return null;
+  var d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+function fmtDate(d) {
+  if(!d) return 'N/A';
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+function daysBetween(a, b) {
+  // a and b are Date objects; returns b - a in days (positive = b is later)
+  return Math.round((b - a) / 86400000);
+}
+function computeTimeline(startDateStr, taDay, submissionDateStr) {
+  // submissionDateStr = date licensing team creates the Verifiable profile (today by default)
+  if(!startDateStr) return null;
+  var today = submissionDateStr ? new Date(submissionDateStr) : new Date();
+  today.setHours(0,0,0,0);
+  var startDate = new Date(startDateStr); startDate.setHours(0,0,0,0);
+  var ta = taDay || 0;
+
+  // When will the license be ready if submitted today?
+  var readyDate = addDays(today.toISOString().split('T')[0], ta);
+
+  // Hard gate: license must be complete by (start - 14 days)
+  var hardGateDate = addDays(startDateStr, -14);
+
+  // Latest possible submission date to still meet Day 1 gate
+  var latestSubmitD1 = addDays(startDateStr, -(14 + ta));
+
+  // Is Day 1 gate achievable if submitted today?
+  var d1Achievable = readyDate <= hardGateDate;
+
+  // Days of buffer (positive = arrives before gate, negative = late)
+  var d1Buffer = daysBetween(readyDate, hardGateDate);
+
+  // Second license gate: must complete by (start + 30)
+  var secondGateDate = addDays(startDateStr, 30);
+  var secondAchievable = readyDate <= secondGateDate;
+  var secondBuffer = daysBetween(readyDate, secondGateDate);
+
+  // Latest submission for second license gate
+  var latestSubmitSecond = addDays(startDateStr, 30 - ta);
+
+  // Days until start from today
+  var daysToStart = daysBetween(today, startDate);
+
+  return {
+    today: today,
+    startDate: startDate,
+    readyDate: readyDate,
+    hardGateDate: hardGateDate,
+    secondGateDate: secondGateDate,
+    latestSubmitD1: latestSubmitD1,
+    latestSubmitSecond: latestSubmitSecond,
+    d1Achievable: d1Achievable,
+    d1Buffer: d1Buffer,
+    secondAchievable: secondAchievable,
+    secondBuffer: secondBuffer,
+    daysToStart: daysToStart,
+    ta: ta
+  };
+}
+
+function runRec(){
+  var name=document.getElementById('pName').value.trim();
+  var npi=document.getElementById('pNPI').value.trim();
+  var type=document.getElementById('pType').value;
+  var fte=parseFloat(document.getElementById('pFTE').value)||1.0;
+  var start=document.getElementById('pStart').value;
+  var lics=msSel.lic; var tzs=msSel.tz;
+  if(!name||!npi||!type){
+    document.getElementById('result-area').innerHTML='<div class="al al-warn" style="margin-top:14px">Please fill in provider name, NPI, and provider type.</div>';
+    return;
+  }
+  var isT=type==='Therapist'; var mkt=isT?THERAPY:PSYCH;
+  var npT=getNpTarget();
+
+  // Sort active licenses by forecast visits descending
+  var licData=lics.map(function(s){var d=mkt[s];var v=d?d.fv:0;return{state:s,visits:v,data:d||{}};}).sort(function(a,b){return b.visits-a.visits;});
+  
+  // Greedy: mark minimum active licenses needed to hit NP target
+  var run=0;
+  licData.forEach(function(l){
+    if(run<npT){l.status='use';run+=l.visits;}
+    else{l.status='defer';}
+  });
+  var curV=run;
+  var totalV=licData.reduce(function(s,l){return s+l.visits;},0);
+  var gap=Math.max(0,npT-curV);
+  var hasBCBS=lics.indexOf('NY')!==-1||lics.indexOf('TX')!==-1;
+
+  // Saturation map
+  var satMap={};
+  recs.filter(function(r){return r.startDate===start&&r.status!=='Changes requested';}).forEach(function(r){
+    (r.appliedFor||'').split(',').map(function(s){return s.trim();}).filter(Boolean).forEach(function(s){satMap[s]=(satMap[s]||0)+1;});
+  });
+
+  // Candidate states (not already licensed, filtered by TZ)
+  var cands=Object.keys(mkt).filter(function(s){return lics.indexOf(s)===-1;}).filter(function(s){return !tzs.length||tzs.indexOf(mkt[s].tz)!==-1;});
+
+  // Score each candidate:
+  // Primary: market priority tier (1=best)
+  // Secondary: filing complexity (fewer filings = better)
+  //   0 = state license only
+  //   1 = + CSR
+  //   2 = + State DEA
+  //   3 = + both CSR and State DEA
+  // Tertiary: turnaround time (lower = better, null/0 treated as fast)
+  // Quaternary: forecast visits (higher = better for closing gap faster)
+  cands.sort(function(a,b){
+    var da=mkt[a]; var db=mkt[b];
+    if(da.r!==db.r) return da.r-db.r;
+    var ca=needsCSR(a,type)+needsDEA(a,type);
+    var cb=needsCSR(b,type)+needsDEA(b,type);
+    if(ca!==cb) return ca-cb;
+    var ta=da.ta||0; var tb=db.ta||0;
+    if(ta!==tb) return ta-tb;
+    return db.fv-da.fv;
+  });
+
+  // Build recommendation list.
+  // Rule: always show top ranked candidates to fill the gap (up to 5, min 3).
+  // Rule: NY and TX are ALWAYS shown as separate selectable options regardless
+  //       of gap status, with an intent toggle (clinical = visits count, BCBS-only = visits don't count).
+  function makeRec(s, isBCBS) {
+    var d=mkt[s]; if(!d) return null;
+    var filingCount=(needsCSR(s,type)?1:0)+(needsDEA(s,type)?1:0);
+    var filingLabel=filingCount===0?'State license only':filingCount===1?(needsCSR(s,type)?'State license + CSR':'State license + State DEA'):'State license + CSR + State DEA';
+    var filingBurden=filingCount===0?'low':filingCount===1?'medium':'high';
+    var tl=computeTimeline(start,d.ta,null);
+    return {
+      state:s,tier:d.r,arch:d.a,fv:d.fv,nv:d.nv||d.fv,ta:d.ta,
+      csr:needsCSR(s,type),dea:needsDEA(s,type),
+      filingLabel:filingLabel,filingBurden:filingBurden,
+      satRisk:satMap[s]?(satMap[s]>=2?'high':'medium'):'none',
+      isBCBSState:(s==='NY'||s==='TX'),
+      timeline:tl,
+      clinicalIntent:!isBCBS  // clinical recs default to clinical; BCBS section defaults to BCBS-only
+    };
+  }
+
+  // Gap-fill recs (exclude NY/TX — they are always shown separately below)
+  var clinicalRecs=[]; var cumV=0; var gapMet=false;
+  cands.filter(function(s){return s!=='NY'&&s!=='TX';}).forEach(function(s){
+    if(clinicalRecs.length>=5) return;
+    if(gapMet&&clinicalRecs.length>=3) return;
+    var rec=makeRec(s,false);
+    cumV+=rec.fv;
+    rec.cumV=cumV; rec.closesGap=cumV>=gap;
+    clinicalRecs.push(rec);
+    if(cumV>=gap) gapMet=true;
+  });
+
+  // NY and TX: always shown, always available for clinical or BCBS-only.
+  // If not already licensed.
+  var bcbsRecs=[];
+  ['NY','TX'].forEach(function(s){
+    if(lics.indexOf(s)===-1&&mkt[s]){
+      var rec=makeRec(s,false); // default to clinical intent
+      rec.clinicalIntent=false; // but start with BCBS-only selected so user has to actively choose clinical
+      bcbsRecs.push(rec);
+    }
+  });
+
+  curRes={name:name,npi:npi,type:type,fte:fte,start:start,lics:lics,licData:licData,
+    npTarget:npT,curV:curV,totalV:totalV,gap:gap,hasBCBS:hasBCBS,
+    clinicalRecs:clinicalRecs,bcbsRecs:bcbsRecs,strategicRecs:[],
+    date:new Date().toISOString().split('T')[0]};
+  renderRes();
+}
+
+
+function renderRes(){
+  var r=curRes;
+  var init=r.name.split(' ').map(function(p){return p[0]||'';}).join('').slice(0,2).toUpperCase();
+  var useLics=r.licData.filter(function(l){return l.status==='use';});
+  var deferLics=r.licData.filter(function(l){return l.status==='defer';});
+  var gPct=r.npTarget>0?Math.min(100,Math.round(r.curV/r.npTarget*100)):0;
+  var gCls=r.gap===0?'ok':r.gap<r.npTarget*0.4?'warn':'bad';
+
+  // Snapshot (will be dynamically updated as user selects recs)
+  function buildSnap(extraV){
+    var total=r.curV+extraV;
+    var pct=r.npTarget>0?Math.min(100,Math.round(total/r.npTarget*100)):0;
+    var remaining=Math.max(0,r.npTarget-total);
+    var barColor=remaining===0?'var(--grn)':pct>60?'var(--teal)':'var(--teal)';
+    return '<div class="snap">'
+      +'<div class="sc"><div class="sc-lbl">NP target ('+r.fte+' FTE)</div><div class="sc-val">'+r.npTarget+'</div><div class="sc-sub">visits / patients per panel</div></div>'
+      +'<div class="sc"><div class="sc-lbl">Current + selected coverage</div>'
+        +'<div class="sc-val '+(remaining===0?'ok':extraV>0?'warn':'warn')+'">'+total+'</div>'
+        +'<div class="sc-sub">'+r.lics.length+' active'+(extraV>0?' + selected recs':'')+' &middot; '+pct+'% of target</div>'
+        +'<div class="pb-wrap" style="position:relative;height:12px;border-radius:6px;overflow:hidden;margin-top:6px">'
+          // Base bar — active licenses
+          +'<div style="position:absolute;left:0;top:0;height:100%;width:'+gPct+'%;background:var(--teal);border-radius:6px;"></div>'
+          // Overlay bar — selected recs contribution (in lighter teal/green)
+          +(extraV>0?'<div style="position:absolute;left:'+gPct+'%;top:0;height:100%;width:'+Math.min(100-gPct,Math.round(extraV/r.npTarget*100))+'%;background:var(--grn);border-radius:0 6px 6px 0;opacity:0.7;"></div>':'')
+          // Target line
+          +(pct<100?'<div style="position:absolute;left:99%;top:0;height:100%;width:2px;background:rgba(0,0,0,0.15);"></div>':'')
+        +'</div>'
+        +'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-top:3px">'
+          +'<span style="color:var(--teal)">Active: '+r.curV+'v</span>'
+          +(extraV>0?'<span style="color:var(--grn)">+ Selected: '+extraV+'v</span>':'')
+          +'<span>'+(remaining===0?'<strong style="color:var(--grn)">Target met &#10003;</strong>':remaining+'v to go')+'</span>'
+        +'</div>'
+      +'</div>'
+      +'<div class="sc"><div class="sc-val '+gCls+'" style="margin-top:2px">'+(remaining===0?'&#10003; Met':'+'+remaining)+'</div>'
+        +'<div class="sc-sub" style="margin-top:4px">'+(remaining===0?'Clinical target met':'visits still needed')+'</div>'
+      +'</div>'
+      +'</div>';
+  }
+
+  // Active license table
+  // For NPs, seed rnHeld map from rec data (default false)
+  if(!r.rnHeld) r.rnHeld={};
+  var licRows=r.licData.map(function(l){
+    var pct=r.npTarget>0?Math.round(l.visits/r.npTarget*100):0;
+    var statusBadge=l.status==='use'?'<span class="bdg bg">Use for ramp</span>':'<span class="bdg bgr">Defer</span>';
+    var rnCol='';
+    if(r.type==='NP'){
+      // null = unknown (not yet confirmed), true = yes, false = no
+      var rnVal=r.rnHeld[l.state]; // undefined/null = unknown
+      var rnHeld=rnVal===true;
+      var rnUnknown=(rnVal===undefined||rnVal===null);
+      // Check if compact RN covers this state
+      var activeRnStates=Object.keys(r.rnHeld).filter(function(s){return r.rnHeld[s]===true;});
+      var compactCovered=!rnHeld&&!rnUnknown&&rnCoveredByCompact(l.state,activeRnStates);
+      var isCompact=isNlcCompact(l.state);
+      var compactPending=NLC_PENDING.indexOf(l.state)!==-1;
+      var rnStatus=rnUnknown?'unknown':rnHeld?'held':compactCovered?'compact':compactPending?'pending':'needed';
+      var rnColor={unknown:'var(--mut)',held:'var(--grn)',compact:'var(--blue)',pending:'var(--amb)',needed:'var(--red)'}[rnStatus];
+      var rnBg={unknown:'var(--bg)',held:'var(--grn-bg)',compact:'var(--blue-bg)',pending:'var(--amb-bg)',needed:'var(--red-bg)'}[rnStatus];
+      var rnLabel={unknown:'RN: Confirm ↓',held:'RN: Yes ✓',compact:'RN: Compact ✓',pending:'RN: Compact (pending)',needed:'RN: No — apply'}[rnStatus];
+      var rnNote={
+        unknown:'<div style="font-size:10px;color:var(--mut);margin-top:3px">Tap to confirm if RN is held in this state'+(isCompact?' (NLC compact)':'')+'</div>',
+        held:'',
+        compact:'<div style="font-size:10px;color:var(--blue);margin-top:3px">Covered by NLC compact — no separate RN needed</div>',
+        pending:'<div style="font-size:10px;color:var(--amb);margin-top:3px">NLC compact pending — verify before assuming covered</div>',
+        needed:'<div style="font-size:10px;color:var(--red);margin-top:3px">RN must be applied for'+(isCompact?' (NLC compact state)':'')+'</div>'
+      }[rnStatus];
+      // data-held: null=unknown, 1=yes, 0=no
+      var rnDataVal=rnUnknown?'null':rnHeld?'1':'0';
+      rnCol='<td>'
+        +'<button class="rn-toggle" data-state="'+l.state+'" data-held="'+rnDataVal+'" style="font-size:11px;font-weight:600;cursor:pointer;border-radius:5px;padding:3px 8px;font-family:inherit;border:1.5px solid '+rnColor+';background:'+rnBg+';color:'+rnColor+'">'
+          +rnLabel
+        +'</button>'
+        +rnNote
+      +'</td>';
+    }
+    return '<tr>'
+      +'<td><strong>'+l.state+'</strong> <span style="font-size:11px;color:var(--mut)">'+SNAMES[l.state]+'</span></td>'
+      +'<td>'+l.visits+'</td><td>'+r.npTarget+'</td>'
+      +'<td><div class="pb-wrap" style="width:70px;display:inline-block;vertical-align:middle;margin-right:5px"><div class="pb '+(l.status==='defer'?'pb-dim':'')+'" style="width:'+pct+'%"></div></div>'+pct+'%</td>'
+      +'<td>'+statusBadge+'</td>'
+      +'<td style="font-size:11px">'
+        +(needsCSR(l.state,r.type)?'<span class="bdg ba" style="font-size:10px">CSR req.</span> ':'')
+        +(needsDEA(l.state,r.type)?'<span class="bdg br" style="font-size:10px">State DEA req.</span>':'')
+        +((!needsCSR(l.state,r.type)&&!needsDEA(l.state,r.type))?'<span style="color:var(--mut)">None</span>':'')
+      +'</td>'
+      +rnCol
+    +'</tr>';
+  }).join('')||'<tr><td colspan="6" style="color:var(--mut);padding:10px">No active licenses selected</td></tr>';
+
+  // Checklist
+  var ckl='<ul class="ckl">'
+    +'<li><span class="ck '+(r.hasBCBS?'pass':'fail')+'">'+(r.hasBCBS?'&#10003;':'&#10007;')+'</span> NY or TX license (BCBS eligibility)</li>'
+    +'<li><span class="ck '+(r.lics.length>=2?'pass':'fail')+'">'+(r.lics.length>=2?'&#10003;':'&#10007;')+'</span> Minimum 2 licenses ('+r.lics.length+' active)</li>'
+    +'<li><span class="ck '+(r.gap===0?'pass':r.gap<20?'na':'fail')+'">'+(r.gap===0?'&#10003;':r.gap<20?'~':'&#10007;')+'</span> Clinical NP target &mdash; '+r.curV+' / '+r.npTarget+' ramp visits covered</li>'
+    +'</ul>';
+
+  // Build chip HTML helper
+  function buildChip(rec, prefix, i, defaultClinical){
+    var cls=rec.tier===1?'p1':rec.tier===2?'p2':'p3';
+    var bcls=rec.tier===1?'bt':rec.tier===2?'bb':'ba';
+    var sat=(rec.satRisk==='high'||rec.satRisk==='medium')?'<span class="bdg '+(rec.satRisk==='high'?'br':'ba')+'" style="font-size:10px;margin-left:3px">&#9888; '+rec.satRisk+' sat.</span>':'';
+    var licBdg='<span class="bdg bg" style="font-size:10px;margin-right:3px">State license</span>';
+    var csrBdg=rec.csr?'<span class="bdg ba" style="font-size:10px;margin-right:3px">+ CSR</span>':'';
+    var deaBdg=rec.dea?'<span class="bdg br" style="font-size:10px;margin-right:3px">+ State DEA</span>':'';
+    var bcbsBdg=rec.isBCBSState?'<span class="bdg" style="background:#eeedfe;color:#3c3489;font-size:10px;border:1px solid #afa9ec;margin-right:3px">BCBS eligible</span>':'';
+
+    // Timeline block
+    var tlHtml='<div style="font-size:11px;font-weight:500;color:var(--mut);margin-top:3px">&#9201; '+(rec.ta>0?rec.ta+'d TAT':'Fast \u2014 no delay')+'</div>';
+    var tl=rec.timeline;
+    if(tl&&rec.ta>0){
+      var d1c=tl.d1Achievable?'var(--grn)':tl.secondAchievable?'var(--amb)':'var(--red)';
+      var d1t=tl.d1Achievable?'&#10003; Day 1 Ready':tl.secondAchievable?'&#9888; Meets 30d gate':'&#10007; Misses both gates';
+      var lsDays=tl.latestSubmitD1?daysBetween(tl.today,tl.latestSubmitD1):-999;
+      var submitTxt=lsDays<0?'Submit NOW (overdue)':lsDays===0?'Submit TODAY':('Submit by '+fmtDate(tl.latestSubmitD1)+' ('+lsDays+'d)');
+      tlHtml='<div style="margin-top:5px;background:rgba(255,255,255,0.5);border-radius:5px;padding:5px 7px;font-size:11px;line-height:1.6">'
+        +'<div style="font-weight:600;color:'+d1c+'">'+d1t+'</div>'
+        +'<div style="color:var(--mut)">'+submitTxt+'</div>'
+        +'</div>';
+    }
+
+    // Intent toggle (for all chips — but "BCBS only" option only shown for NY/TX)
+    var isNP=(r.type==='NP');
+    var isNP=(r.type==='NP');
+    // Compact coverage: check if any currently-confirmed RN in active licenses covers this state via NLC
+    var activeRnStatesForChip=r.licData
+      .filter(function(l){return r.rnHeld&&r.rnHeld[l.state]===true;})
+      .map(function(l){return l.state;});
+    var chipCompactCovered=isNP&&isNlcCompact(rec.state)&&activeRnStatesForChip.some(function(s){return isNlcCompact(s);});
+    var chipCompactPending=isNP&&NLC_PENDING.indexOf(rec.state)!==-1;
+    var chipIsCompact=isNlcCompact(rec.state);
+    var compactNote='';
+    if(chipCompactCovered){
+      compactNote='<div style="font-size:10px;color:var(--blue);margin-top:3px;font-weight:600">&#10003; NLC compact — RN likely covered if compact RN is confirmed active</div>';
+    } else if(chipCompactPending){
+      compactNote='<div style="font-size:10px;color:var(--amb);margin-top:3px">NLC compact pending for this state — verify before assuming RN is covered</div>';
+    } else if(chipIsCompact){
+      compactNote='<div style="font-size:10px;color:var(--mut);margin-top:3px">NLC compact state — a confirmed RN in another compact state would cover this</div>';
+    } else if(isNP){
+      compactNote='<div style="font-size:10px;color:var(--red);margin-top:3px;font-weight:600">&#9888; Non-compact state — separate RN required regardless of other licenses</div>';
+    }
+    var rnSection=isNP?
+      '<div id="rn-wrap-'+prefix+i+'" style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.08)">'
+        +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin-bottom:5px">RN license in this state?</div>'
+        +compactNote
+        +'<div style="display:flex;gap:5px;margin-top:5px">'
+          +'<button id="ib-rn-yes-'+prefix+i+'" style="flex:1;padding:4px 6px;font-size:11px;font-weight:600;cursor:pointer;border-radius:5px;font-family:inherit;border:1.5px solid var(--bdr2);background:var(--surf);color:var(--mut)">Yes — RN held</button>'
+          +'<button id="ib-rn-no-'+prefix+i+'" style="flex:1;padding:4px 6px;font-size:11px;font-weight:600;cursor:pointer;border-radius:5px;font-family:inherit;border:1.5px solid var(--red);background:var(--red-bg);color:var(--red)">No — apply for RN too</button>'
+        +'</div>'
+        +'<div id="rn-note-'+prefix+i+'" style="font-size:10px;color:var(--red);margin-top:4px;font-weight:600">⚠ RN application must also be submitted for this state</div>'
+      +'</div>'
+    :''
+    var intentHtml='<div id="iw-'+prefix+i+'" style="display:none;margin-top:8px;background:rgba(255,255,255,0.6);border-radius:6px;padding:6px 8px">'
+      +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin-bottom:5px">Use this license for:</div>'
+      +'<div style="display:flex;gap:5px">'
+        +'<button id="ib-clin-'+prefix+i+'" style="flex:1;padding:4px 6px;font-size:11px;font-weight:600;cursor:pointer;border-radius:5px;font-family:inherit;border:1.5px solid var(--txt);background:var(--txt);color:#fff">Clinical practice'+(rec.isBCBSState?' + BCBS':'')+'</button>'
+        +(rec.isBCBSState?'<button id="ib-bcbs-'+prefix+i+'" style="flex:1;padding:4px 6px;font-size:11px;font-weight:600;cursor:pointer;border-radius:5px;font-family:inherit;border:1.5px solid var(--bdr2);background:var(--surf);color:var(--mut)">BCBS only</button>':'')
+      +'</div>'
+      +'<div id="iv-'+prefix+i+'" style="font-size:10px;margin-top:5px;color:var(--mut)"></div>'
+      +rnSection
+    +'</div>';
+
+    var gapTagHtml='';
+    if(rec.cumV!==undefined){
+      var cumPct=r.gap>0?Math.min(100,Math.round(rec.cumV/r.gap*100)):100;
+      gapTagHtml=rec.closesGap?'<span class="bdg bg" style="font-size:10px">Gap closed &#10003;</span>':'<span class="bdg ba" style="font-size:10px">'+rec.cumV+'/'+r.gap+'v ('+cumPct+'%)</span>';
+    }
+
+    return '<div class="rchip '+cls+'" id="chip-'+prefix+i+'">'
+      +'<input type="checkbox" class="rchip-cb" id="chk-'+prefix+i+'">'
+      +'<div class="rchip-hd"><span class="rchip-st">'+rec.state+'</span>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">'
+          +'<span class="bdg '+bcls+'" style="font-size:10px">Option '+(i+1)+'</span>'
+          +'<span class="bdg bgr" style="font-size:9px;color:'+(rec.filingBurden==='low'?'var(--grn)':rec.filingBurden==='medium'?'var(--amb)':'var(--red)')+'">'+rec.filingBurden.charAt(0).toUpperCase()+rec.filingBurden.slice(1)+' complexity</span>'
+        +'</div>'
+      +'</div>'
+      +'<div class="rchip-meta" style="margin-top:3px">'+rec.arch+'</div>'
+      +tlHtml
+      +intentHtml
+      +'<div style="margin-top:6px;line-height:1.9">'+licBdg+csrBdg+deaBdg+bcbsBdg+'</div>'
+      +'<div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px">'
+        +'<span style="font-size:12px;font-weight:600" id="iv2-'+prefix+i+'">+'+rec.fv+' visits</span>'
+        +gapTagHtml
+      +'</div>'
+      +sat
+      +'</div>';
+  }
+
+  // Build chip HTML for gap-fill recs
+  var clinChips='';
+  if(r.clinicalRecs.length){
+    r.clinicalRecs.forEach(function(rec,i){ clinChips+=buildChip(rec,'c',i,true); });
+  } else {
+    clinChips='<div class="al al-ok">Clinical NP target already met by active licenses.</div>';
+  }
+
+  // Build chip HTML for NY/TX (always shown if not already licensed)
+  var bcbsChips='';
+  r.bcbsRecs.forEach(function(rec,i){ bcbsChips+=buildChip(rec,'b',i,false); });
+
+  // Day 1 banner
+  var d1Banner='';
+  if(r.start&&r.clinicalRecs.length){
+    var d1ok=[],d1sec=[],d1miss=[];
+    r.clinicalRecs.forEach(function(rec){
+      var tl=rec.timeline; if(!tl) return;
+      if(tl.d1Achievable) d1ok.push(rec.state);
+      else if(tl.secondAchievable) d1sec.push(rec.state);
+      else d1miss.push(rec.state);
+    });
+    if(d1ok.length||d1sec.length||d1miss.length){
+      var dts=daysBetween(new Date(),new Date(r.start));
+      d1Banner='<div style="background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);padding:11px 14px;margin-bottom:12px;font-size:12px;line-height:1.7">'
+        +'<div style="font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin-bottom:5px">Day 1 Readiness &mdash; '+dts+' days to start</div>'
+        +(d1ok.length?'<div>&#10003; <strong style="color:var(--grn)">Day 1 gate:</strong> '+d1ok.join(', ')+'</div>':'')
+        +(d1sec.length?'<div>&#9888; <strong style="color:var(--amb)">30-day gate:</strong> '+d1sec.join(', ')+'</div>':'')
+        +(d1miss.length?'<div>&#10007; <strong style="color:var(--red)">Misses both gates:</strong> '+d1miss.join(', ')+'</div>':'')
+        +'</div>';
+    }
+  }
+
+  // Assemble result HTML
+  document.getElementById('result-area').innerHTML=
+    '<div id="res-wrap" style="margin-top:16px">'
+    +'<div class="card" style="margin-bottom:12px">'
+      +'<div class="cs"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">'
+        +'<div style="display:flex;align-items:center;gap:11px"><div class="pav">'+init+'</div><div>'
+          +'<div style="font-weight:700;font-size:15px">'+r.name+'</div>'
+          +'<div style="font-size:12px;color:var(--mut)">NPI '+r.npi+' &middot; '+r.type+' &middot; '+r.fte+' FTE'+(r.start?' &middot; starts '+r.start:'')+'</div>'
+        +'</div></div>'
+        +'<button class="btn btn-p" id="sub-btn">Submit for approval &#8594;</button>'
+      +'</div></div>'
+      +'<div class="cs"><div class="sl">Coverage snapshot</div><div id="snap-area"></div></div>'
+      +'<div class="cs">'
+        +'<div class="sl" style="margin-bottom:6px">Active license breakdown</div>'
+        +'<div style="font-size:12px;color:var(--mut);margin-bottom:10px">Deferred licenses don\'t need CSR/DEA filed immediately.</div>'
+        +'<table class="lt"><thead><tr><th>State</th><th>Forecast visits</th><th>NP target</th><th>Contribution</th><th>Ramp status</th><th>Required filings</th>'+(r.type==='NP'?'<th>RN status</th>':'')+'</tr></thead>'
+        +'<tbody>'+licRows+'</tbody></table>'
+        // Recommended license breakdown (updated live)
+        +'<div id="rec-breakdown" style="margin-top:10px"></div>'
+      +'</div>'
+      +'<div class="cs" style="border-bottom:none"><div class="sl">License checklist</div>'+ckl+'</div>'
+    +'</div>'
+
+    // Gap-fill recommendations
+    +'<div class="card" style="margin-bottom:12px"><div class="cs" style="border-bottom:none">'
+      +d1Banner
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">'
+        +'<div><div class="sl" style="margin-bottom:2px">Recommended licenses'+(r.gap>0?' &mdash; '+r.gap+'-visit gap':' &mdash; target met')+'</div>'
+          +'<div style="font-size:12px;color:var(--mut)">Ranked by market priority &#8594; filing complexity &#8594; TAT. Select to apply for. NY/TX shown separately below.</div>'
+        +'</div>'
+        +(r.clinicalRecs.length?'<div style="display:flex;gap:6px"><button class="btn btn-sm" id="clin-all">Select all</button><button class="btn btn-sm" id="clin-clr">Clear</button></div>':'')
+      +'</div>'
+      +'<div class="rcg" id="rcg-clin">'+clinChips+'</div>'
+    +'</div></div>'
+
+    // NY / TX — always available
+    +(r.bcbsRecs.length?
+      '<div class="card" style="margin-bottom:12px"><div class="cs" style="border-bottom:none">'
+        +'<div class="sl" style="margin-bottom:2px">NY &amp; TX &mdash; always available</div>'
+        +'<div style="font-size:12px;color:var(--mut);margin-bottom:10px">Select if you want either license. Use the toggle on each card to choose Clinical practice (visits count toward gap) or BCBS-only (no visit credit, license + filings still submitted).</div>'
+        +'<div class="rcg" id="rcg-bcbs">'+bcbsChips+'</div>'
+      +'</div></div>'
+    :'')
+
+    // Selection summary
+    +'<div class="card"><div class="cs" style="border-bottom:none">'
+      +'<div id="sel-sum" style="font-size:13px;color:var(--mut)">No licenses selected yet.</div>'
+    +'</div></div>'
+    +'</div>';
+
+  // Wire RN toggle buttons in active license table (NP only)
+  if(r.type==='NP'){
+    document.querySelectorAll('button.rn-toggle').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var st=this.dataset.state;
+        var cur=this.dataset.held; // 'null','1','0'
+        // Cycle: null → '1' → '0' → null
+        var next=cur==='null'?'1':cur==='1'?'0':'null';
+        this.dataset.held=next;
+        r.rnHeld[st]=next==='1'?true:next==='0'?false:null;
+        // Recompute visual state
+        var isComp=typeof isNlcCompact==='function'&&isNlcCompact(st);
+        var isPend=NLC_PENDING.indexOf(st)!==-1;
+        var confirmedRn=Object.keys(r.rnHeld).filter(function(s){return r.rnHeld[s]===true;});
+        var compCov=next==='0'&&typeof rnCoveredByCompact==='function'&&rnCoveredByCompact(st,confirmedRn);
+        var status=next==='null'?'unknown':next==='1'?'held':compCov?'compact':isPend?'pending':'needed';
+        var colors={unknown:'var(--mut)',held:'var(--grn)',compact:'var(--blue)',pending:'var(--amb)',needed:'var(--red)'};
+        var bgs={unknown:'var(--bg)',held:'var(--grn-bg)',compact:'var(--blue-bg)',pending:'var(--amb-bg)',needed:'var(--red-bg)'};
+        var labels={unknown:'RN: Confirm ↓',held:'RN: Yes ✓',compact:'RN: Compact ✓',pending:'RN: Compact (pending)',needed:'RN: No — apply'};
+        var notes={
+          unknown:'Tap to confirm if RN is held in this state'+(isComp?' (NLC compact)':''),
+          held:'',
+          compact:'Covered by NLC compact — no separate RN needed',
+          pending:'NLC compact pending — verify before assuming covered',
+          needed:'RN must be applied for'+(isComp?' (NLC compact state)':'')
+        };
+        this.style.borderColor=colors[status];
+        this.style.background=bgs[status];
+        this.style.color=colors[status];
+        this.textContent=labels[status];
+        var noteEl=this.nextElementSibling;
+        if(noteEl) noteEl.remove();
+        if(notes[status]){
+          var d=document.createElement('div');
+          d.style.cssText='font-size:10px;margin-top:3px;color:'+colors[status];
+          d.textContent=notes[status];
+          this.parentNode.appendChild(d);
+        }
+      });
+    });
+  }
+
+  // Initial snap render
+  document.getElementById('snap-area').innerHTML=buildSnap(0);
+
+  // Wire all chip events
+  function wireChips(recs, prefix){
+    recs.forEach(function(rec,i){
+      var chip=document.getElementById('chip-'+prefix+i);
+      var cb=document.getElementById('chk-'+prefix+i);
+      var wrap=document.getElementById('iw-'+prefix+i);
+      var btnClin=document.getElementById('ib-clin-'+prefix+i);
+      var btnBcbs=document.getElementById('ib-bcbs-'+prefix+i);
+      var visEl=document.getElementById('iv-'+prefix+i);
+      var vis2El=document.getElementById('iv2-'+prefix+i);
+
+      function setIntent(clinical){
+        rec.clinicalIntent=clinical;
+        // Style clinical button
+        btnClin.style.background=clinical?'var(--txt)':'var(--surf)';
+        btnClin.style.color=clinical?'#fff':'var(--mut)';
+        btnClin.style.borderColor=clinical?'var(--txt)':'var(--bdr2)';
+        // Style BCBS button if exists
+        if(btnBcbs){
+          btnBcbs.style.background=!clinical?'var(--txt)':'var(--surf)';
+          btnBcbs.style.color=!clinical?'#fff':'var(--mut)';
+          btnBcbs.style.borderColor=!clinical?'var(--txt)':'var(--bdr2)';
+        }
+        if(visEl) visEl.textContent=clinical?'Visits count toward NP gap':'BCBS eligibility only \u2014 0 visit credit';
+        if(vis2El) vis2El.textContent=clinical?'+'+rec.fv+' visits':'BCBS only (0v)';
+        updSnapAndSummary();
+      }
+
+      // Set initial state
+      setIntent(rec.clinicalIntent);
+
+      if(chip&&cb){
+        chip.addEventListener('click',function(){
+          cb.checked=!cb.checked;
+          chip.classList.toggle('sel',cb.checked);
+          if(wrap) wrap.style.display=cb.checked?'block':'none';
+          updSnapAndSummary();
+        });
+        cb.addEventListener('click',function(e){
+          e.stopPropagation();
+          chip.classList.toggle('sel',cb.checked);
+          if(wrap) wrap.style.display=cb.checked?'block':'none';
+          updSnapAndSummary();
+        });
+      }
+      if(btnClin) btnClin.addEventListener('click',function(e){e.stopPropagation();setIntent(true);});
+      if(btnBcbs) btnBcbs.addEventListener('click',function(e){e.stopPropagation();setIntent(false);});
+
+      // RN toggle wiring (NP only)
+      var btnRnYes=document.getElementById('ib-rn-yes-'+prefix+i);
+      var btnRnNo=document.getElementById('ib-rn-no-'+prefix+i);
+      var rnNote=document.getElementById('rn-note-'+prefix+i);
+      if(btnRnYes&&btnRnNo){
+        // Default: RN not held (No button active)
+        rec.rnHeld=false;
+        function setRn(held){
+          rec.rnHeld=held; // null=unknown, true=yes, false=no
+          var isYes=held===true, isNo=held===false;
+          // Yes button: active green when yes
+          btnRnYes.style.background=isYes?'var(--grn-bg)':'var(--surf)';
+          btnRnYes.style.color=isYes?'var(--grn)':'var(--mut)';
+          btnRnYes.style.borderColor=isYes?'var(--grn)':'var(--bdr2)';
+          // No button: active red when no
+          btnRnNo.style.background=isNo?'var(--red-bg)':'var(--surf)';
+          btnRnNo.style.color=isNo?'var(--red)':'var(--mut)';
+          btnRnNo.style.borderColor=isNo?'var(--red)':'var(--bdr2)';
+          if(rnNote) rnNote.style.display=isNo?'block':'none';
+        }
+        setRn(null); // default Unknown — user must confirm
+        btnRnYes.addEventListener('click',function(e){e.stopPropagation();setRn(true);});
+        btnRnNo.addEventListener('click',function(e){e.stopPropagation();setRn(false);});
+      }
+    });
+  }
+
+  wireChips(r.clinicalRecs,'c');
+  wireChips(r.bcbsRecs,'b');
+
+  // Select all / clear for gap-fill recs
+  var ca=document.getElementById('clin-all'); var cc=document.getElementById('clin-clr');
+  if(ca) ca.addEventListener('click',function(){
+    r.clinicalRecs.forEach(function(_,i){var cb=document.getElementById('chk-c'+i);var ch=document.getElementById('chip-c'+i);var w=document.getElementById('iw-c'+i);if(cb&&ch){cb.checked=true;ch.classList.add('sel');if(w)w.style.display='block';}});
+    updSnapAndSummary();
+  });
+  if(cc) cc.addEventListener('click',function(){
+    r.clinicalRecs.forEach(function(_,i){var cb=document.getElementById('chk-c'+i);var ch=document.getElementById('chip-c'+i);var w=document.getElementById('iw-c'+i);if(cb&&ch){cb.checked=false;ch.classList.remove('sel');if(w)w.style.display='none';}});
+    updSnapAndSummary();
+  });
+
+  var sb=document.getElementById('sub-btn');
+  if(sb) sb.addEventListener('click',doSubmit);
+}
+
+
+function getSelRecs(){
+  if(!curRes) return [];
+  var out=[];
+  (curRes.clinicalRecs||[]).forEach(function(rec,i){var cb=document.getElementById('chk-c'+i);if(cb&&cb.checked) out.push(rec);});
+  (curRes.bcbsRecs||[]).forEach(function(rec,i){var cb=document.getElementById('chk-b'+i);if(cb&&cb.checked) out.push(rec);});
+  return out;
+}
+function updSnapAndSummary(){
+  updSelSum();
+  // Update snap progress bar
+  var sel=getSelRecs();
+  var extraV=sel.filter(function(r){return r.clinicalIntent!==false;}).reduce(function(s,r){return s+r.fv;},0);
+  var snapEl=document.getElementById('snap-area');
+  if(snapEl&&curRes){
+    // rebuild snap inline
+    var r=curRes;
+    var total=r.curV+extraV;
+    var pct=r.npTarget>0?Math.min(100,Math.round(total/r.npTarget*100)):0;
+    var remaining=Math.max(0,r.npTarget-total);
+    snapEl.innerHTML='<div class="snap">'
+      +'<div class="sc"><div class="sc-lbl">NP target ('+r.fte+' FTE)</div><div class="sc-val">'+r.npTarget+'</div><div class="sc-sub">visits / patients per panel</div></div>'
+      +'<div class="sc"><div class="sc-lbl">Current + selected coverage</div>'
+        +'<div class="sc-val '+(remaining===0?'ok':'warn')+'">'+total+'</div>'
+        +'<div class="sc-sub">'+r.lics.length+' active'+(extraV>0?' + selected recs':'')+' &middot; '+pct+'% of target</div>'
+        +'<div class="pb-wrap" style="position:relative;height:12px;border-radius:6px;overflow:hidden;margin-top:6px">'
+          +'<div style="position:absolute;left:0;top:0;height:100%;width:'+Math.round(r.curV/r.npTarget*100)+'%;background:var(--teal);border-radius:6px;"></div>'
+          +(extraV>0?'<div style="position:absolute;left:'+Math.round(r.curV/r.npTarget*100)+'%;top:0;height:100%;width:'+Math.min(100-Math.round(r.curV/r.npTarget*100),Math.round(extraV/r.npTarget*100))+'%;background:var(--grn);opacity:0.8;"></div>':'')
+        +'</div>'
+        +'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-top:3px">'
+          +'<span style="color:var(--teal)">Active: '+r.curV+'v</span>'
+          +(extraV>0?'<span style="color:var(--grn)">+ Recs: '+extraV+'v</span>':'')
+          +'<span>'+(remaining===0?'<strong style="color:var(--grn)">Target met &#10003;</strong>':remaining+'v remaining')+'</span>'
+        +'</div>'
+      +'</div>'
+      +'<div class="sc"><div class="sc-val '+(remaining===0?'ok':extraV>0?'warn':'bad')+'" style="margin-top:2px">'+(remaining===0?'&#10003; Met':'+'+remaining)+'</div>'
+        +'<div class="sc-sub" style="margin-top:4px">'+(remaining===0?'Clinical target met':'visits still needed')+'</div>'
+      +'</div>'
+      +'</div>';
+  }
+  // Update rec breakdown table
+  updRecBreakdown(sel);
+}
+function updRecBreakdown(sel){
+  var el=document.getElementById('rec-breakdown'); if(!el) return;
+  var clinSel=sel.filter(function(r){return r.clinicalIntent!==false;});
+  if(!clinSel.length){el.innerHTML='';return;}
+  var rows=clinSel.map(function(l){
+    var pct=curRes.npTarget>0?Math.round(l.fv/curRes.npTarget*100):0;
+    return '<tr style="background:var(--grn-bg)">'
+      +'<td><strong>'+l.state+'</strong> <span style="font-size:11px;color:var(--mut)">'+SNAMES[l.state]+'</span> '
+        +(l.isBCBSState?'<span class="bdg" style="background:#eeedfe;color:#3c3489;font-size:9px;border:1px solid #afa9ec">BCBS</span>':'')
+      +'</td>'
+      +'<td>+'+l.fv+'</td><td>'+curRes.npTarget+'</td>'
+      +'<td><div class="pb-wrap" style="width:70px;display:inline-block;vertical-align:middle;margin-right:5px"><div class="pb" style="width:'+pct+'%;background:var(--grn)"></div></div>'+pct+'%</td>'
+      +'<td><span class="bdg bg">Recommended</span></td>'
+      +'<td style="font-size:11px">'
+        +(l.csr?'<span class="bdg ba" style="font-size:10px">CSR req.</span> ':'')
+        +(l.dea?'<span class="bdg br" style="font-size:10px">State DEA req.</span>':'')
+        +((!l.csr&&!l.dea)?'<span style="color:var(--mut)">None</span>':'')
+      +'</td>'
+    +'</tr>';
+  }).join('');
+  el.innerHTML='<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grn);margin:10px 0 6px">Selected recommendations (clinical)</div>'
+    +'<table class="lt"><thead><tr><th>State</th><th>Adds visits</th><th>NP target</th><th>Contribution</th><th>Status</th><th>Required filings</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>';
+}
+function updSelSum(){
+  var el=document.getElementById('sel-sum'); if(!el) return;
+  var sel=getSelRecs();
+  if(!sel.length){el.innerHTML='<span style="color:var(--mut)">No licenses selected yet. Check cards above to add.</span>';return;}
+  var clinUse=sel.filter(function(r){return r.clinicalIntent!==false;});
+  var bcbsOnly=sel.filter(function(r){return r.clinicalIntent===false;});
+  var addV=clinUse.reduce(function(s,r){return s+r.fv;},0);
+  var newT=curRes.curV+addV; var newG=Math.max(0,curRes.npTarget-newT);
+  var parts=[];
+  if(clinUse.length){
+    var states=clinUse.map(function(r){return r.state+(r.isBCBSState?' (clin+BCBS)':'');}).join(', ');
+    parts.push('<strong>'+clinUse.length+' clinical</strong> ('+states+') &rarr; <strong>+'+addV+' visits</strong> &rarr; '+newT+'/'+curRes.npTarget+' '+(newG===0?'<span class="bdg bg" style="font-size:12px">Gap closed &#10003;</span>':'<span class="bdg ba" style="font-size:12px">'+newG+'v remaining</span>'));
+  }
+  if(bcbsOnly.length){
+    parts.push('<strong>'+bcbsOnly.length+' BCBS-only</strong> ('+bcbsOnly.map(function(r){return r.state;}).join(', ')+') &rarr; license + filings submitted, no visit credit');
+  }
+  el.innerHTML=parts.join('<br/>');
+}
+
+async function doSubmit(){
+  var r=curRes; if(!r) return;
+  var sel=getSelRecs();
+  var clinSel=sel.filter(function(x){return x.clinicalIntent!==false;});
+  var stratSel=sel.filter(function(x){return x.clinicalIntent===false;});
+  if(!sel.length&&r.gap>0){toast('Select at least one license','er');return;}
+
+  // Block submission if any NP active licenses have unconfirmed RN status
+  if(r.type==='NP'){
+    var unconfirmedActive=r.licData.filter(function(l){
+      var v=r.rnHeld?r.rnHeld[l.state]:undefined;
+      return v===undefined||v===null;
+    }).map(function(l){return l.state;});
+    // Also check selected chips
+    var unconfirmedChips=sel.filter(function(x){
+      return x.rnHeld===null||x.rnHeld===undefined;
+    }).map(function(x){return x.state;});
+    var allUnconfirmed=unconfirmedActive.concat(unconfirmedChips.filter(function(s){
+      return unconfirmedActive.indexOf(s)===-1;
+    }));
+    if(allUnconfirmed.length>0){
+      // Show inline error above submit button
+      var existing=document.getElementById('rn-submit-err');
+      if(existing) existing.remove();
+      var err=document.createElement('div');
+      err.id='rn-submit-err';
+      err.className='al al-err';
+      err.style.marginTop='10px';
+      err.innerHTML='<strong>Cannot submit — RN status unconfirmed for: '
+        +allUnconfirmed.join(', ')+'</strong><br/>'
+        +'Please confirm RN status (Yes or No) for each listed state in the active license breakdown above before submitting.';
+      var subBtn=document.getElementById('sub-btn');
+      if(subBtn&&subBtn.parentNode) subBtn.parentNode.insertBefore(err,subBtn.nextSibling);
+      // Also highlight the unconfirmed RN toggle buttons
+      unconfirmedActive.forEach(function(st){
+        var btns=document.querySelectorAll('button.rn-toggle[data-state="'+st+'"]');
+        btns.forEach(function(b){
+          b.style.outline='2.5px solid var(--red)';
+          b.style.outlineOffset='2px';
+          setTimeout(function(){b.style.outline='';b.style.outlineOffset='';},4000);
+        });
+      });
+      return;
+    }
+    // Clear any previous error
+    var prev=document.getElementById('rn-submit-err');
+    if(prev) prev.remove();
+  }
+  var btn=document.getElementById('sub-btn');
+  btn.disabled=true; btn.textContent='Submitting...';
+  var addV=clinSel.reduce(function(s,x){return s+x.fv;},0);
+  var newT=r.curV+addV; var gapMet=newT>=r.npTarget;
+  var id=Date.now();
+  // Check active licenses for compact RN coverage at submission time
+  var confirmedRnStates=r.lics.filter(function(s){return r.rnHeld&&r.rnHeld[s]===true;});
+  function stateLabel(x){
+    var label=x.state; var extras=[];
+    if(r.type==='NP'){
+      var rnIsNull=(x.rnHeld===null||x.rnHeld===undefined);
+      var compactCoversThis=rnCoveredByCompact(x.state,confirmedRnStates);
+      if(rnIsNull) extras.push('RN: unconfirmed');
+      else if(!x.rnHeld&&!compactCoversThis) extras.push('+ RN');
+      else if(!x.rnHeld&&compactCoversThis) extras.push('RN: compact ✓');
+    }
+    if(r.type==='NP'&&needsCSR(x.state,r.type)) extras.push('+ CSR');
+    if(r.type==='NP'&&needsDEA(x.state,r.type)) extras.push('+ State DEA');
+    if(r.type==='Psychiatrist'&&needsCSR(x.state,r.type)) extras.push('+ CSR');
+    if(r.type==='Psychiatrist'&&needsDEA(x.state,r.type)) extras.push('+ State DEA');
+    if(extras.length) label+=' ('+extras.join(', ')+')';
+    return label;
+  }
+  var clinStr=clinSel.length?clinSel.map(stateLabel).join(', '):'';
+  var stratStr=stratSel.length?stratSel.map(stateLabel).join(', '):'';
+  var rnNeeded=r.type==='NP'?clinSel.filter(function(x){
+    return x.rnHeld===false&&!rnCoveredByCompact(x.state,confirmedRnStates);
+  }).map(function(x){return x.state;}).join(', '):'';
+  var rnCompact=r.type==='NP'?clinSel.filter(function(x){
+    return x.rnHeld===false&&rnCoveredByCompact(x.state,confirmedRnStates);
+  }).map(function(x){return x.state;}).join(', '):'';
+  var rnUnconfirmed=r.type==='NP'?clinSel.filter(function(x){
+    return x.rnHeld===null||x.rnHeld===undefined;
+  }).map(function(x){return x.state;}).join(', '):'';
+  var applied=clinStr||stratStr
+    ?(clinStr?'Clinical: '+clinStr:'')+(clinStr&&stratStr?' | ':'')+(stratStr?'Strategic: '+stratStr:'')
+    :'None — target already met';
+  if(rnNeeded) applied+=' | RN needed: '+rnNeeded;
+  if(rnCompact) applied+=' | RN compact (verify): '+rnCompact;
+  if(rnUnconfirmed) applied+=' | RN unconfirmed: '+rnUnconfirmed;
+  var deferred=r.licData.filter(function(l){return l.status==='defer';}).map(function(l){return l.state;}).join(', ')||'None';
+  var allRecs=(r.clinicalRecs||[]).concat(r.strategicRecs||[]);
+  // Compute Day 1 readiness summary for tracker
+  var d1States=[], secondStates=[], missStates=[];
+  clinSel.forEach(function(rec){
+    var tl=rec.timeline||computeTimeline(r.start,rec.ta,null);
+    if(tl){
+      if(tl.d1Achievable) d1States.push(rec.state);
+      else if(tl.secondAchievable) secondStates.push(rec.state);
+      else missStates.push(rec.state);
+    }
+  });
+  var d1Summary=(d1States.length?'D1: '+d1States.join(',')+' | ':'')+(secondStates.length?'30d: '+secondStates.join(',')+' | ':'')+(missStates.length?'Miss: '+missStates.join(','):'');
+  // Latest submit deadline for Day 1 gate (earliest deadline across selected states)
+  var submitDeadline='';
+  if(clinSel.length&&r.start){
+    var deadlines=clinSel.map(function(rec){return rec.timeline?rec.timeline.latestSubmitD1:null;}).filter(Boolean);
+    if(deadlines.length){
+      var earliest=deadlines.reduce(function(a,b){return a<b?a:b;});
+      submitDeadline=fmtDate(earliest);
+    }
+  }
+  recs.unshift({id:id,date:r.date,startDate:r.start,npi:r.npi,name:r.name,type:r.type,
+    activeLicenses:r.lics.join(', '),deferredLicenses:deferred,
+    toolRecommendations:allRecs.map(function(x){return x.state;}).join(', '),
+    appliedFor:applied,npTarget:r.npTarget,npCoverage:newT,gapMet:gapMet,
+    d1Summary:d1Summary,submitDeadline:submitDeadline,
+    status:'Pending',comments:''});
+  saveRecs();
+  var emailSent=false;
+  if(MS_TOK){
+    try{
+      var body=buildEmail(r,clinSel,stratSel,newT,gapMet);
+      var gr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',headers:{'Authorization':'Bearer '+MS_TOK,'Content-Type':'application/json'},body:JSON.stringify({message:{subject:'[Action required] License approval — '+r.name+' (NPI: '+r.npi+')',body:{contentType:'HTML',content:body},toRecipients:[{emailAddress:{address:APPR}}]}})});
+      emailSent=gr.ok;
+    }catch(e){}
+  }
+  btn.textContent='Submitted ✓';
+  var wrap=document.getElementById('res-wrap');
+  if(wrap){var b=document.createElement('div');b.className='al '+(emailSent?'al-ok':'al-warn');b.style.marginTop='12px';b.innerHTML=emailSent?'Submitted. Email sent to <strong>'+APPR+'</strong>.<br>Clinical: <strong>'+clinStr+'</strong> | Strategic: <strong>'+stratStr+'</strong> | Deferred: <strong>'+deferred+'</strong>. Status: Pending until approved.':'Added to tracker (Pending).<br>Applied for: <strong>'+applied+'</strong> | Deferred: <strong>'+deferred+'</strong>. Add an M365 Graph token in Settings for email delivery.';wrap.appendChild(b);}
+}
+
+function buildVerifiableEmail(r, clinSel, stratSel) {
+  var all = clinSel.concat(stratSel);
+  if(!all.length) return null;
+
+  var licRows = all.map(function(rec) {
+    var purpose = rec.purpose==='strategic' ? 'Strategic (BCBS eligibility)' : 'Clinical ramp';
+    var actions = getLicenseActions(rec.state, r.type);
+    var stateApp = '✓ State license application';
+    var csrApp = needsCSR(rec.state, r.type) ? '✓ CSR application required' : '— CSR not required';
+    var deaApp = needsDEA(rec.state, r.type) ? '✓ State DEA application required' : '— State DEA not required';
+    return '<tr style="border-bottom:1px solid #e4e1da">'
+      +'<td style="padding:8px 10px;font-weight:600;font-size:13px">'+rec.state+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px">'+purpose+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px">Tier '+rec.tier+' &middot; '+rec.arch+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px">'+(rec.ta?rec.ta+'d':'N/A')+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;line-height:1.8">'
+        +stateApp+'<br/>'+csrApp+'<br/>'+deaApp
+      +'</td>'
+      +'</tr>';
+  }).join('');
+
+  var deferred = r.licData.filter(function(l){return l.status==='defer';});
+  var deferRows = deferred.map(function(l){
+    return '<tr style="border-bottom:1px solid #e4e1da">'
+      +'<td style="padding:6px 10px;font-size:12px">'+l.state+'</td>'
+      +'<td style="padding:6px 10px;font-size:12px;color:#854f0b">Hold — not needed for ramp at this time</td>'
+      +'<td style="padding:6px 10px;font-size:12px">'+
+        (needsCSR(l.state,r.type)?'CSR: hold submission':'CSR: N/A')+'<br/>'+
+        (needsDEA(l.state,r.type)?'State DEA: hold submission':'State DEA: N/A')
+      +'</td>'
+      +'</tr>';
+  }).join('');
+
+  return '<div style="font-family:-apple-system,Arial,sans-serif;max-width:660px;color:#1a1918">'
+    +'<div style="background:#185fa5;color:#fff;padding:14px 22px;border-radius:8px 8px 0 0">'
+    +'<h2 style="margin:0;font-size:16px">License Application Request — Verifiable</h2>'
+    +'<p style="margin:3px 0 0;font-size:11px;opacity:.75">Please create the following license applications in Verifiable for this provider.</p>'
+    +'</div>'
+    +'<div style="background:#fff;border:1px solid #e4e1da;border-top:none;border-radius:0 0 8px 8px;padding:20px 22px">'
+    +'<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px">'
+    +'<tr><td style="padding:4px 0;color:#68665e;width:140px">Provider</td><td style="font-weight:600">'+r.name+'</td></tr>'
+    +'<tr><td style="padding:4px 0;color:#68665e">NPI</td><td>'+r.npi+'</td></tr>'
+    +'<tr><td style="padding:4px 0;color:#68665e">Provider type</td><td>'+r.type+'</td></tr>'
+    +'<tr><td style="padding:4px 0;color:#68665e">FTE</td><td>'+r.fte+'</td></tr>'
+    +'<tr><td style="padding:4px 0;color:#68665e">Start date</td><td>'+(r.start||'TBD')+'</td></tr>'
+    +'<tr><td style="padding:4px 0;color:#68665e">Active licenses</td><td>'+(r.lics.join(', ')||'None')+'</td></tr>'
+    +'</table>'
+
+    +'<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#68665e;margin-bottom:8px">Applications to create in Verifiable</h3>'
+    +'<table style="width:100%;border-collapse:collapse;border:1px solid #e4e1da;margin-bottom:16px">'
+    +'<tr style="background:#f7f6f3">'
+    +'<th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">State</th>'
+    +'<th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Purpose</th>'
+    +'<th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Market</th>'
+    +'<th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">TAT</th>'
+    +'<th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e;background:#fff3cd">Submit to Verifiable by</th>'
+    +'<th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e;background:#fff3cd">Est. ready date</th>'
+    +'<th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">D1 gate</th>'
+    +'<th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Required filings</th>'
+    +'</tr>'
+    +licRows
+    +'</table>'
+
+    +(deferred.length ? 
+      '<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#68665e;margin-bottom:8px">Deferred licenses — hold applications for now</h3>'
+      +'<table style="width:100%;border-collapse:collapse;border:1px solid #e4e1da;margin-bottom:16px">'
+      +'<tr style="background:#f7f6f3">'
+      +'<th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">State</th>'
+      +'<th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Action</th>'
+      +'<th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Filings</th>'
+      +'</tr>'
+      +deferRows
+      +'</table>'
+    : '')
+
+    +'<div style="background:#e5f0fb;border-left:3px solid #185fa5;padding:10px 14px;font-size:12px;line-height:1.6;border-radius:0 4px 4px 0;margin-top:4px">'
+    +'<strong>Next steps:</strong> Please create applications in Verifiable for each state listed above. '
+    +'The <strong>“Submit to Verifiable by”</strong> column shows the latest date to create the profile and meet the Day 1 Readiness gate (license complete ≥14 days before start). '
+    +'Yellow rows indicate states that will miss the Day 1 gate but can still meet the 30-day post-start target. '
+    +'For each state: (1) create the state license application, (2) CSR application if marked required, (3) State DEA application if marked required. '
+    +'<strong>A market only counts as complete for Day 1 Readiness when ALL required filings are done</strong>, not just the state license. '
+    +'Deferred states should NOT have applications created at this time.'
+    +'</div>'
+    +'</div></div>';
+}
+
+
+function buildEmail(r,clinSel,stratSel,newT,gapMet){
+  var clinSt=clinSel.map(function(x){return x.state;});
+  var stratSt=stratSel.map(function(x){return x.state;});
+  var all=(r.clinicalRecs||[]).concat(r.strategicRecs||[]);
+  var rows=all.map(function(rec){
+    var isClin=clinSt.indexOf(rec.state)!==-1;
+    var isStrat=stratSt.indexOf(rec.state)!==-1;
+    var a=isClin||isStrat;
+    return '<tr style="background:'+(a?'#f0f9f4':'#fff')+'"><td style="padding:6px 10px;font-weight:600">'+rec.state+'</td>'
+      +'<td style="padding:6px 10px">'+(isClin?'<strong>Clinical apply</strong>':isStrat?'<strong>Strategic apply</strong>':'Not selected')+'</td>'
+      +'<td style="padding:6px 10px">Tier '+rec.tier+'</td>'
+      +'<td style="padding:6px 10px">'+rec.arch+'</td>'
+      +'<td style="padding:6px 10px">+'+rec.fv+'v</td>'
+      +'<td style="padding:6px 10px">'+(rec.ta||'N/A')+'d</td></tr>';
+  }).join('');
+  var deferred=r.licData.filter(function(l){return l.status==='defer';}).map(function(l){return l.state;}).join(', ')||'None';
+
+  return '<div style="font-family:-apple-system,Arial,sans-serif;max-width:620px;color:#1a1918"><div style="background:#1a1918;color:#fff;padding:14px 22px;border-radius:8px 8px 0 0"><h2 style="margin:0;font-size:16px">License Recommendation \u2014 Pending Approval</h2><p style="margin:3px 0 0;font-size:11px;opacity:.65">Submitted '+r.date+' \u00b7 Market Prioritization Tool</p></div><div style="background:#fff;border:1px solid #e4e1da;border-top:none;border-radius:0 0 8px 8px;padding:20px 22px"><table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px"><tr><td style="padding:4px 0;color:#68665e;width:130px">Provider</td><td style="font-weight:600">'+r.name+'</td></tr><tr><td style="padding:4px 0;color:#68665e">NPI</td><td>'+r.npi+'</td></tr><tr><td style="padding:4px 0;color:#68665e">Type / FTE</td><td>'+r.type+' \u00b7 '+r.fte+' FTE</td></tr><tr><td style="padding:4px 0;color:#68665e">Start date</td><td>'+(r.start||'TBD')+'</td></tr><tr><td style="padding:4px 0;color:#68665e">Active licenses</td><td>'+(r.lics.join(', ')||'None')+'</td></tr><tr><td style="padding:4px 0;color:#68665e">NP coverage</td><td>'+newT+'/'+r.npTarget+' visits ('+(gapMet?'\u2713 gap closed':'gap remaining')+')</td></tr></table><h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#68665e;margin-bottom:8px">Recommended licenses</h3><table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e4e1da"><tr style="background:#f7f6f3"><th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">State</th><th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Action</th><th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Tier</th><th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Market</th><th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68685e">+Visits</th><th style="padding:6px 10px;text-align:left;font-size:10px;text-transform:uppercase;color:#68665e">Turnaround</th></tr>'+rows+'</table><p style="font-size:13px;color:#444;margin:16px 0 4px">Please update the record to <strong>Approved</strong> or <strong>Changes requested</strong> in the tracker.</p></div></div>';
+}
+
+async function sendToVerifiable(id) {
+  var rec = recs.find(function(r){return r.id===id;});
+  if(!rec){toast('Record not found','er');return;}
+  if(rec.status!=='Approved'){toast('Only approved records can be sent to Verifiable','er');return;}
+
+  // Build a minimal result object to pass to buildVerifiableEmail
+  // Reconstruct from tracker record
+  var type = rec.type;
+  var lics = (rec.activeLicenses||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  var mkt = type==='Therapist'?THERAPY:PSYCH;
+  
+  // Reconstruct licData with status
+  var npT = NP_BASE[type]||80;
+  var licData = lics.map(function(s){var d=mkt[s];return{state:s,visits:d?d.fv:0,data:d||{}};}).sort(function(a,b){return b.visits-a.visits;});
+  var run=0; licData.forEach(function(l){if(run<npT){l.status='use';run+=l.visits;}else{l.status='defer';}});
+
+  // Parse applied licenses from record
+  var applied = rec.appliedFor||'';
+  var clinStr = ''; var stratStr = '';
+  if(applied.indexOf('Clinical:')!==-1) clinStr = applied.replace(/.*Clinical:\s*/,'').replace(/\s*\|.*/,'');
+  if(applied.indexOf('Strategic:')!==-1) stratStr = applied.replace(/.*Strategic:\s*/,'');
+  if(applied.indexOf('Clinical:')===-1 && applied.indexOf('Strategic:')===-1 && applied!=='None — target already met') clinStr=applied;
+
+  var clinStates = clinStr.split(',').map(function(s){return s.trim();}).filter(Boolean);
+  var stratStates = stratStr.split(',').map(function(s){return s.trim();}).filter(Boolean);
+
+  var clinSel = clinStates.map(function(s){var d=mkt[s]||{};return{state:s,tier:d.r||2,arch:d.a||'',fv:d.fv||0,ta:d.ta,purpose:'clinical'};});
+  var stratSel = stratStates.map(function(s){var d=mkt[s]||{};return{state:s,tier:1,arch:d.a||'',fv:d.fv||0,ta:d.ta,purpose:'strategic'};});
+
+  var r2 = {name:rec.name,npi:rec.npi,type:type,fte:rec.npTarget?rec.npTarget/(NP_BASE[type]||80):1.0,start:rec.startDate,lics:lics,licData:licData,npTarget:rec.npTarget||npT};
+  var body = buildVerifiableEmail(r2, clinSel, stratSel);
+  if(!body){toast('No licenses to send','er');return;}
+
+  // Get licensing team email from settings or use default
+  var licTeamEmail = localStorage.getItem('mpt6_licteam')||'licensing@talkiatry.com';
+
+  if(!MS_TOK){
+    // No token — show a modal with the email body to copy
+    showVerifiableModal(rec.name, rec.npi, body, licTeamEmail);
+    return;
+  }
+
+  try{
+    var gr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+MS_TOK,'Content-Type':'application/json'},
+      body:JSON.stringify({message:{
+        subject:'License Application Request — '+rec.name+' (NPI: '+rec.npi+') — Please add to Verifiable',
+        body:{contentType:'HTML',content:body},
+        toRecipients:[{emailAddress:{address:licTeamEmail}}],
+        ccRecipients:[{emailAddress:{address:APPR}}]
+      }})
+    });
+    if(gr.ok){
+      rec.verifiableSent=true; rec.verifiableSentDate=new Date().toISOString().split('T')[0];
+      saveRecs(); renderTrk();
+      toast('Sent to licensing team ('+licTeamEmail+')','ok');
+    } else {
+      showVerifiableModal(rec.name, rec.npi, body, licTeamEmail);
+    }
+  }catch(e){ showVerifiableModal(rec.name, rec.npi, body, licTeamEmail); }
+}
+
+function showVerifiableModal(name, npi, body, licTeamEmail) {
+  // Create a temporary mailto link as fallback
+  var subject = encodeURIComponent('License Application Request — '+name+' (NPI: '+npi+') — Please add to Verifiable');
+  var mailtoBody = encodeURIComponent('Please see the attached license application request for '+name+' (NPI: '+npi+'). Full details below — best viewed in HTML email.');
+  var el = document.createElement('div');
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:flex;align-items:center;justify-content:center';
+  el.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px 28px;width:480px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.2)">'
+    +'<h3 style="font-size:16px;font-weight:700;margin-bottom:8px">Send to Verifiable / Licensing team</h3>'
+    +'<p style="font-size:13px;color:#68665e;margin-bottom:14px">Add your M365 Graph token in Settings for automatic delivery, or use the button below to open your email client.</p>'
+    +'<div style="background:#f7f6f3;border-radius:8px;padding:10px 14px;font-size:12px;color:#68665e;margin-bottom:14px">'
+    +'<strong>To:</strong> '+licTeamEmail+'<br/>'
+    +'<strong>Subject:</strong> License Application Request — '+name+' (NPI: '+npi+')'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<a href="mailto:'+licTeamEmail+'?subject='+subject+'&body='+mailtoBody+'" style="display:inline-flex;align-items:center;gap:6px;padding:8px 15px;font-size:13px;font-weight:500;cursor:pointer;border-radius:8px;border:1px solid #1a1918;background:#1a1918;color:#fff;text-decoration:none">Open in email client</a>'
+    +'<button onclick="this.parentElement.parentElement.parentElement.remove()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 15px;font-size:13px;font-weight:500;cursor:pointer;border-radius:8px;border:1px solid #ccc9c0;background:#fff;color:#1a1918;font-family:inherit">Close</button>'
+    +'</div>'
+    +'</div>';
+  el.addEventListener('click',function(e){if(e.target===el)el.remove();});
+  document.body.appendChild(el);
+}
+
+
+function delRec(id){
+  var btn=document.querySelector('button.del-btn[data-id="'+id+'"]');
+  if(!btn) return;
+  // Two-click confirm: first click shows "Sure?", second click deletes
+  if(btn.dataset.confirming==='1'){
+    recs=recs.filter(function(r){return r.id!==id;});
+    saveRecs(); renderTrk();
+    toast('Record deleted','ok');
+    return;
+  }
+  btn.dataset.confirming='1';
+  btn.textContent='Sure?';
+  btn.style.cssText='background:var(--red);color:#fff;border:none;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;cursor:pointer;';
+  // Auto-reset after 3s if not clicked again
+  setTimeout(function(){
+    if(btn&&btn.isConnected&&btn.dataset.confirming==='1'){
+      btn.dataset.confirming='0';
+      btn.innerHTML='&#x1F5D1;';
+      btn.style.cssText='background:none;border:none;cursor:pointer;color:var(--red);font-size:15px;padding:2px 6px;border-radius:4px;';
+    }
+  },3000);
+}
+function saveRecs(){try{localStorage.setItem('mpt6',JSON.stringify(recs));}catch(e){} updBadge();}
+function updBadge(){var n=recs.filter(function(r){return r.status==='Pending';}).length;var b=document.getElementById('pbadge');b.textContent=n;b.classList.toggle('on',n>0);}
+function renderStats(){
+  var t=recs.length,pe=recs.filter(function(r){return r.status==='Pending';}).length,ap=recs.filter(function(r){return r.status==='Approved';}).length,ch=recs.filter(function(r){return r.status==='Changes requested';}).length;
+  document.getElementById('stats-row').innerHTML='<div class="stc"><div class="sl">Total</div><div class="sv">'+t+'</div></div><div class="stc"><div class="sl">Pending</div><div class="sv warn">'+pe+'</div></div><div class="stc"><div class="sl">Approved</div><div class="sv ok">'+ap+'</div></div><div class="stc"><div class="sl">Changes requested</div><div class="sv bad">'+ch+'</div></div>';
+}
+function renderTrk(){
+  renderStats(); updBadge();
+  var ft=document.getElementById('fType').value,fs=document.getElementById('fStat').value,fq=document.getElementById('fQ').value.toLowerCase();
+  var rows=recs.filter(function(r){return(!ft||r.type===ft)&&(!fs||r.status===fs)&&(!fq||(r.name||'').toLowerCase().includes(fq)||r.npi.includes(fq));});
+  var tb=document.getElementById('trk-body');
+  if(!rows.length){tb.innerHTML='<tr class="empty"><td colspan="13">No records match your filters.</td></tr>';return;}
+  tb.innerHTML=rows.map(function(r){return '<tr><td style="font-size:12px;color:var(--mut);white-space:nowrap">'+r.date+'</td><td style="font-family:monospace;font-size:11px">'+r.npi+'</td><td style="font-weight:600;white-space:nowrap">'+r.name+'</td><td><span class="bdg '+(r.type==='Psychiatrist'?'bb':r.type==='NP'?'bt':'bg')+'">'+r.type+'</span></td><td style="font-size:11px;color:var(--mut)">'+r.activeLicenses+'</td><td style="font-size:11px">'+r.toolRecommendations+'</td><td style="font-size:11px;font-weight:500">'+r.appliedFor+'</td><td><span class="bdg '+(r.gapMet?'bg':'ba')+'">'+(r.gapMet?'Yes':'No')+' &middot; '+r.npCoverage+'/'+r.npTarget+'</span></td><td><select class="ssel" data-id="'+r.id+'"><option'+(r.status==='Pending'?' selected':'')+'>Pending</option><option'+(r.status==='Approved'?' selected':'')+'>Approved</option><option'+(r.status==='Changes requested'?' selected':'')+'>Changes requested</option></select></td><td><input class="ci" type="text" value="'+(r.comments||'')+'" placeholder="Comments..." data-id="'+r.id+'" data-field="comments"/></td>'
+      +'<td style="text-align:center"><button class="del-btn" data-id="'+r.id+'" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:15px;padding:2px 6px;border-radius:4px" title="Delete record">&#x1F5D1;</button></td>'
+      +'</tr>';}).join('');
+  tb.querySelectorAll('select.ssel').forEach(function(sel){sel.addEventListener('change',function(){updField(parseInt(this.dataset.id),'status',this.value);renderStats();updBadge();});});
+  tb.querySelectorAll('input.ci').forEach(function(inp){inp.addEventListener('change',function(){updField(parseInt(this.dataset.id),this.dataset.field,this.value);});});
+  tb.querySelectorAll('button.del-btn').forEach(function(btn){btn.addEventListener('click',function(){delRec(parseInt(this.dataset.id));});});
+}
+function updField(id,field,val){var r=recs.find(function(x){return x.id===id;});if(r){r[field]=val;saveRecs();}}
+function doExport(){
+  var h=['Date','NPI','Name','Type','Start Date','Active Licenses','Deferred Licenses','Tool Recommendations','Applied For','NP Target','NP Coverage','Gap Met','D1 Readiness','Submit by (Verifiable)','Status','Comments'];
+  var rows=recs.map(function(r){return[r.date,r.npi,r.name,r.type,r.startDate,r.activeLicenses,r.deferredLicenses,r.toolRecommendations,r.appliedFor,r.npTarget,r.npCoverage,r.gapMet?'Yes':'No',r.d1Summary,r.submitDeadline,r.status,r.comments].map(function(v){return'"'+(v||'').toString().replace(/"/g,'""')+'"';}).join(',');});
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([h.join(',')].concat(rows).join('\n'));a.download='mpt_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+}
+function clearForm(){
+  ['pName','pNPI','pStart','pCtx'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('pType').value=''; document.getElementById('pFTE').value='1.0';
+  msClear('tz'); msClear('lic');
+  document.getElementById('sat-area').style.display='none';
+  document.getElementById('result-area').innerHTML='';
+  curRes=null;
+}
+function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast on '+(type||'');setTimeout(function(){t.className='toast';},3000);}
+
+updBadge();
+</script>
+</body>
+</html>
